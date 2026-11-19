@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Platform activity | Platform owner{% endblock %}
+
+{% block content %}
+<div class="dashboard-viewport">
+  {% include 'header.html' %}
+  <div class="dashboard-body-container">
+    {% include 'sidebar.html' %}
+    <main class="dashboard-main-content platform-activity-page">
+      <header class="workspace-header-row platform-page-hero">
+        <div>
+          <span class="platform-page-eyebrow">PLATFORM OWNER · OVERSIGHT</span>
+          <h1 class="welcome-heading">Platform activity</h1>
+          <p class="welcome-subtext">Review, export, and manage platform-wide activity records.</p>
+        </div>
+        <div class="platform-activity-toolbar">
+          <a class="btn btn-hero-primary" href="{{ url_for('main.platform_activity_export') }}">
+            Export all to Excel
+          </a>
+          <form method="POST" action="{{ url_for('main.clear_platform_activity') }}"
+                onsubmit="return confirm('Clear all {{ activity_count }} platform activity entries? This cannot be undone.');">
+            <button class="btn btn-secondary" type="submit" {% if not activity %}disabled{% endif %}>
+              Clear all activity
+            </button>
+          </form>
+        </div>
+      </header>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div role="status" class="platform-activity-notice notice-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endwith %}
+
+      <section class="platform-activity-panel platform-activity-full" aria-label="All platform activity">
+        <div class="platform-activity-header">
+          <div>
+            <span class="platform-activity-eyebrow">PLATFORM MONITOR</span>
+            <h2>All activity</h2>
+            <p>{{ activity_count }} {{ 'event' if activity_count == 1 else 'events' }} · Showing the complete history.</p>
+          </div>
+        </div>
+        <div class="platform-activity-content">
+          {% for event in activity %}
+          <article class="platform-activity-event platform-activity-record">
+            <span class="platform-activity-dot" aria-hidden="true"></span>
+            <div class="platform-activity-record-body">
+              <div class="platform-activity-event-heading">
+                <strong>{{ event.action }}</strong>
+                <time>{{ event.timestamp.strftime('%d %b %Y, %H:%M:%S') }}</time>
+              </div>
+              <p>{{ event.details or 'No additional details.' }}</p>
+              <span class="platform-activity-meta">
+                {{ event.username or event.user_code or 'System' }} ·
+                {{ event.organization.name if event.organization else event.target_record or 'Platform' }}
+              </span>
+              <details class="platform-activity-details">
+                <summary>View activity details</summary>
+                <dl>
+                  <div><dt>Activity ID</dt><dd>{{ event.id }}</dd></div>
+                  <div><dt>User</dt><dd>{{ event.username or 'System' }} ({{ event.user_code or '—' }})</dd></div>
+                  <div><dt>Company</dt><dd>{{ event.organization.name if event.organization else 'Platform' }}</dd></div>
+                  <div><dt>Target record</dt><dd>{{ event.target_record or '—' }}</dd></div>
+                  <div><dt>IP address</dt><dd>{{ event.ip_address or '—' }}</dd></div>
+                  <div><dt>Full details</dt><dd>{{ event.details or '—' }}</dd></div>
+                </dl>
+              </details>
+              <form class="platform-activity-delete-form" method="POST"
+                    action="{{ url_for('main.delete_platform_activity', activity_id=event.id) }}"
+                    onsubmit="return confirm('Delete this activity entry?');">
+                <button class="btn btn-secondary" type="submit">Delete activity</button>
+              </form>
+            </div>
+          </article>
+          {% else %}
+          <div class="platform-empty-state platform-activity-empty">
+            <span aria-hidden="true">◷</span>
+            <strong>No platform activity yet</strong>
+            <p>Company and platform events will appear here when recorded.</p>
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+{% endblock %}

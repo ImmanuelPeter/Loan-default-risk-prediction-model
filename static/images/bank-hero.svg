@@ -1,0 +1,158 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 440" width="100%" height="auto">
+  <defs>
+    <linearGradient id="skyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#93c5fd" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#eff6ff" stop-opacity="0.1"/>
+    </linearGradient>
+    <linearGradient id="bankWall" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#e2e8f0"/>
+      <stop offset="50%" stop-color="#f8fafc"/>
+      <stop offset="100%" stop-color="#cbd5e1"/>
+    </linearGradient>
+    <linearGradient id="pillarGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#cbd5e1"/>
+      <stop offset="30%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#94a3b8"/>
+    </linearGradient>
+    <linearGradient id="goldCoin" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fde047"/>
+      <stop offset="50%" stop-color="#eab308"/>
+      <stop offset="100%" stop-color="#ca8a04"/>
+    </linearGradient>
+    <linearGradient id="shieldGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+    <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="12" stdDeviation="16" flood-color="#0f172a" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+
+  <!-- Distant City Skyline Silhouettes -->
+  <rect x="180" y="80" width="40" height="240" fill="#cbd5e1" opacity="0.4"/>
+  <rect x="230" y="60" width="50" height="260" fill="#93c5fd" opacity="0.45"/>
+  <rect x="290" y="110" width="35" height="210" fill="#cbd5e1" opacity="0.4"/>
+  <rect x="330" y="90" width="45" height="230" fill="#bfdbfe" opacity="0.5"/>
+
+  <!-- Bank Building Structure -->
+  <g filter="url(#softShadow)" transform="translate(360, 40)">
+    <!-- Base podium -->
+    <rect x="20" y="240" width="280" height="15" rx="2" fill="#94a3b8"/>
+    <rect x="10" y="255" width="300" height="15" rx="2" fill="#64748b"/>
+    <rect x="0" y="270" width="320" height="20" rx="3" fill="#475569"/>
+
+    <!-- Building back wall -->
+    <rect x="35" y="110" width="250" height="135" fill="url(#bankWall)"/>
+    <!-- Grand Bank Entrance Door -->
+    <rect x="135" y="150" width="50" height="90" rx="4" fill="#334155"/>
+    <rect x="142" y="157" width="16" height="78" rx="2" fill="#1e293b"/>
+    <rect x="162" y="157" width="16" height="78" rx="2" fill="#1e293b"/>
+
+    <!-- Neoclassical Columns -->
+    <rect x="45" y="110" width="22" height="130" rx="3" fill="url(#pillarGrad)"/>
+    <rect x="95" y="110" width="22" height="130" rx="3" fill="url(#pillarGrad)"/>
+    <rect x="145" y="110" width="22" height="130" rx="3" fill="url(#pillarGrad)"/>
+    <rect x="205" y="110" width="22" height="130" rx="3" fill="url(#pillarGrad)"/>
+    <rect x="255" y="110" width="22" height="130" rx="3" fill="url(#pillarGrad)"/>
+
+    <!-- Entablature with "BANK" Signage -->
+    <rect x="25" y="70" width="270" height="40" rx="2" fill="#e2e8f0"/>
+    <rect x="30" y="75" width="260" height="30" fill="#f8fafc"/>
+    <text x="160" y="98" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="20" font-weight="900" fill="#1e293b" text-anchor="middle" letter-spacing="4">BANK</text>
+
+    <!-- Triangular Pediment (Roof) -->
+    <polygon points="160,10 15,70 305,70" fill="#f1f5f9"/>
+    <polygon points="160,18 30,68 290,68" fill="#e2e8f0"/>
+    <circle cx="160" cy="46" r="12" fill="#94a3b8"/>
+  </g>
+
+  <!-- 3D Speedometer Risk Gauge Widget ("Low Risk") -->
+  <g filter="url(#softShadow)" transform="translate(180, 160)">
+    <!-- White card container -->
+    <rect x="0" y="0" width="230" height="150" rx="18" fill="#ffffff" stroke="#e2e8f0" stroke-width="2"/>
+    
+    <!-- Semi-circular gauge arc -->
+    <!-- Orange (Left), Green (Middle/Right) -->
+    <path d="M 45 95 A 70 70 0 0 1 185 95" fill="none" stroke="#e2e8f0" stroke-width="16" stroke-linecap="round"/>
+    <!-- Orange segment -->
+    <path d="M 45 95 A 70 70 0 0 1 80 48" fill="none" stroke="#f59e0b" stroke-width="16"/>
+    <!-- Yellow segment -->
+    <path d="M 80 48 A 70 70 0 0 1 125 35" fill="none" stroke="#eab308" stroke-width="16"/>
+    <!-- Green segment -->
+    <path d="M 125 35 A 70 70 0 0 1 185 95" fill="none" stroke="#10b981" stroke-width="16" stroke-linecap="round"/>
+
+    <!-- Needle pointing to Low Risk (Green) -->
+    <circle cx="115" cy="95" r="10" fill="#1e293b"/>
+    <line x1="115" y1="95" x2="160" y2="55" stroke="#1e293b" stroke-width="4" stroke-linecap="round"/>
+
+    <!-- "Low Risk" label with checkmark -->
+    <text x="105" y="130" font-family="sans-serif" font-size="16" font-weight="800" fill="#1e293b">Low Risk</text>
+    <circle cx="185" cy="125" r="9" fill="#10b981"/>
+    <path d="M 181 125 L 184 128 L 189 122" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Golden Coins Stack -->
+  <g filter="url(#softShadow)" transform="translate(380, 230)">
+    <!-- Coin 1 -->
+    <ellipse cx="40" cy="115" rx="30" ry="10" fill="url(#goldCoin)"/>
+    <rect x="10" y="105" width="60" height="10" fill="#ca8a04"/>
+    <ellipse cx="40" cy="105" rx="30" ry="10" fill="url(#goldCoin)"/>
+    <!-- Coin 2 -->
+    <rect x="10" y="95" width="60" height="10" fill="#ca8a04"/>
+    <ellipse cx="40" cy="95" rx="30" ry="10" fill="url(#goldCoin)"/>
+    <!-- Coin 3 -->
+    <rect x="10" y="85" width="60" height="10" fill="#ca8a04"/>
+    <ellipse cx="40" cy="85" rx="30" ry="10" fill="url(#goldCoin)"/>
+    <!-- Coin 4 -->
+    <rect x="10" y="75" width="60" height="10" fill="#ca8a04"/>
+    <ellipse cx="40" cy="75" rx="30" ry="10" fill="url(#goldCoin)"/>
+
+    <!-- Second Coin Stack (Taller) -->
+    <ellipse cx="85" cy="125" rx="30" ry="10" fill="url(#goldCoin)"/>
+    <rect x="55" y="115" width="60" height="10" fill="#ca8a04"/>
+    <ellipse cx="85" cy="115" rx="30" ry="10" fill="url(#goldCoin)"/>
+    <rect x="55" y="105" width="60" height="10" fill="#ca8a04"/>
+    <ellipse cx="85" cy="105" rx="30" ry="10" fill="url(#goldCoin)"/>
+    <rect x="55" y="95" width="60" height="10" fill="#ca8a04"/>
+    <ellipse cx="85" cy="95" rx="30" ry="10" fill="url(#goldCoin)"/>
+    <rect x="55" y="85" width="60" height="10" fill="#ca8a04"/>
+    <ellipse cx="85" cy="85" rx="30" ry="10" fill="url(#goldCoin)"/>
+    <rect x="55" y="75" width="60" height="10" fill="#ca8a04"/>
+    <ellipse cx="85" cy="75" rx="30" ry="10" fill="url(#goldCoin)"/>
+    <rect x="55" y="65" width="60" height="10" fill="#ca8a04"/>
+    <ellipse cx="85" cy="65" rx="30" ry="10" fill="url(#goldCoin)"/>
+  </g>
+
+  <!-- Blue Clipboard with Checklist and Shield -->
+  <g filter="url(#softShadow)" transform="translate(480, 160)">
+    <!-- Clipboard board -->
+    <rect x="0" y="20" width="140" height="180" rx="16" fill="#f8fafc" stroke="#3b82f6" stroke-width="4"/>
+    <!-- Top Clip -->
+    <rect x="40" y="10" width="60" height="18" rx="6" fill="#3b82f6"/>
+    <!-- Paper Sheet -->
+    <rect x="15" y="40" width="110" height="145" rx="6" fill="#ffffff"/>
+
+    <!-- Checklist rows -->
+    <!-- Row 1 -->
+    <rect x="25" y="55" width="16" height="16" rx="4" fill="#dbeafe"/>
+    <path d="M 28 63 L 32 67 L 38 59" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"/>
+    <rect x="48" y="60" width="60" height="6" rx="3" fill="#cbd5e1"/>
+
+    <!-- Row 2 -->
+    <rect x="25" y="85" width="16" height="16" rx="4" fill="#dbeafe"/>
+    <path d="M 28 93 L 32 97 L 38 89" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"/>
+    <rect x="48" y="90" width="50" height="6" rx="3" fill="#cbd5e1"/>
+
+    <!-- Row 3 -->
+    <rect x="25" y="115" width="16" height="16" rx="4" fill="#dbeafe"/>
+    <path d="M 28 123 L 32 127 L 38 119" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round"/>
+    <rect x="48" y="120" width="55" height="6" rx="3" fill="#cbd5e1"/>
+
+    <!-- Blue Security Shield in Foreground -->
+    <g transform="translate(65, 100)">
+      <path d="M 35 10 Q 65 15 65 45 Q 65 80 35 100 Q 5 80 5 45 Q 5 15 35 10 Z" fill="url(#shieldGrad)" stroke="#ffffff" stroke-width="3"/>
+      <!-- Checkmark inside shield -->
+      <path d="M 23 52 L 31 62 L 47 40" fill="none" stroke="#ffffff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+  </g>
+</svg>

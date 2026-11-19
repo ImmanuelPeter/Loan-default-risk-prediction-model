@@ -1,0 +1,39 @@
+<!-- Shared navigation for each isolated organization workspace -->
+<header class="dashboard-topbar">
+  <button class="topbar-menu-toggle" type="button" data-bs-toggle="collapse" data-bs-target="#dashboardSidebar"
+          aria-controls="dashboardSidebar" aria-expanded="false" aria-label="Toggle navigation">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+      <line x1="4" y1="6" x2="20" y2="6"></line>
+      <line x1="4" y1="12" x2="20" y2="12"></line>
+      <line x1="4" y1="18" x2="20" y2="18"></line>
+    </svg>
+  </button>
+  <div class="topbar-brand">
+    <a href="{{ url_for('main.platform_admin' if current_user.is_platform_owner else 'main.profile') }}" style="display: flex; align-items: center; gap: 0.75rem; color: #ffffff;">
+      <svg width="26" height="26" viewBox="0 0 48 48" fill="none">
+        <polygon points="24,6 6,18 42,18" fill="#ffffff"/>
+        <rect x="8" y="18" width="32" height="4" fill="#ffffff"/>
+        <rect x="11" y="22" width="4" height="14" fill="#ffffff"/>
+        <rect x="19" y="22" width="4" height="14" fill="#ffffff"/>
+        <rect x="25" y="22" width="4" height="14" fill="#ffffff"/>
+        <rect x="33" y="22" width="4" height="14" fill="#ffffff"/>
+        <rect x="6" y="36" width="36" height="3" fill="#ffffff"/>
+        <rect x="4" y="39" width="40" height="4" fill="#ffffff"/>
+      </svg>
+      <span>{{ current_user.organization.name if current_user.organization else 'Platform Operations' }}</span>
+    </a>
+  </div>
+
+  <div class="topbar-right">
+    <a href="{{ url_for('main.view_profile') }}" class="user-profile-menu" aria-label="View profile for {{ current_user.name }}" title="View profile">
+      <div class="user-avatar-circle">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+      </div>
+      <div class="user-text-info">
+        <div class="user-name-title">{{ current_user.name }}</div>
+        <div class="user-role-subtitle">{{ current_user.role }}</div>
+      </div>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+    </a>
+  </div>
+</header>

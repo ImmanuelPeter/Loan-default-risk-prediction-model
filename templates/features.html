@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}Platform Features | Loan Default Risk Prediction Platform{% endblock %}
+
+{% block content %}
+<header class="landing-navbar">
+  <div class="brand-container">
+    <img src="{{ url_for('static', filename='images/bank-logo.svg') }}" alt="Bank Logo">
+    <span>Loan Default Risk Prediction</span>
+  </div>
+
+  <nav>
+    <ul class="landing-nav-links">
+      <li><a href="{{ url_for('main.index') }}">Home</a></li>
+      <li><a href="{{ url_for('main.about') }}">About</a></li>
+      <li><a href="{{ url_for('main.features') }}" class="active">Features</a></li>
+    </ul>
+  </nav>
+
+  <div class="landing-auth-buttons">
+    {% if current_user.is_authenticated %}
+      <a href="{{ url_for('main.profile') }}" class="btn-landing-register">Workspace Dashboard &rarr;</a>
+    {% else %}
+      <a href="{{ url_for('auth.login') }}" class="btn-landing-login">Log in</a>
+      <a href="{{ url_for('main.register_organization') }}" class="btn-landing-register">Create account</a>
+    {% endif %}
+  </div>
+</header>
+
+<main style="padding: 4rem 1.5rem; max-width: 1200px; margin: 0 auto;">
+  <div style="text-align: center; max-width: 800px; margin: 0 auto 3.5rem auto;">
+    <div style="display: inline-block; background: #eff6ff; color: #1a68ff; font-weight: 700; font-size: 0.82rem; padding: 0.35rem 1rem; border-radius: 20px; text-transform: uppercase; margin-bottom: 0.75rem;">
+      Full Capabilities Overview
+    </div>
+    <h1 style="font-size: 2.7rem; font-weight: 800; color: #0f172a; line-height: 1.2; margin-bottom: 1rem;">
+      Enterprise SaaS Credit Risk Underwriting Architecture
+    </h1>
+    <p style="font-size: 1.1rem; color: #64748b; line-height: 1.6;">
+      Everything your lending organization needs to manage loan portfolios, predict borrower default probabilities, and enforce regulatory compliance.
+    </p>
+  </div>
+
+  <!-- Features Grid (Section 2.3) -->
+  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 1.75rem; margin-bottom: 4rem;">
+    <!-- 1. Applicant KYC Management -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 2rem;">
+      <div style="width: 48px; height: 48px; border-radius: 12px; background: #eff6ff; color: #1a68ff; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1rem;">
+        👤
+      </div>
+      <h3 style="font-size: 1.2rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem;">Applicant Registration &amp; KYC</h3>
+      <p style="font-size: 0.9rem; color: #64748b; line-height: 1.6;">
+        Maintain verified borrower records including monthly income, tenure, residential area, debt obligations, and employment classifications.
+      </p>
+    </div>
+
+    <!-- 2. Loan Applications -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 2rem;">
+      <div style="width: 48px; height: 48px; border-radius: 12px; background: #ecfdf5; color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1rem;">
+        📋
+      </div>
+      <h3 style="font-size: 1.2rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem;">Loan Applications Tracking</h3>
+      <p style="font-size: 0.9rem; color: #64748b; line-height: 1.6;">
+        Record loan amounts, terms, and purposes with custom status workflows: Pending, Under Review, Assessed, Approved, and Declined.
+      </p>
+    </div>
+
+    <!-- 3. Machine Learning Default Prediction -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 2rem;">
+      <div style="width: 48px; height: 48px; border-radius: 12px; background: #f5f3ff; color: #8b5cf6; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1rem;">
+        ⚡
+      </div>
+      <h3 style="font-size: 1.2rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem;">Machine Learning Scoring</h3>
+      <p style="font-size: 0.9rem; color: #64748b; line-height: 1.6;">
+        Trained Random Forest and XGBoost ensemble algorithms calculate calibrated default hazard probabilities (e.g. 25.0% Medium Risk).
+      </p>
+    </div>
+
+    <!-- 4. Explainable AI -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 2rem;">
+      <div style="width: 48px; height: 48px; border-radius: 12px; background: #fffbeb; color: #f59e0b; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1rem;">
+        🔍
+      </div>
+      <h3 style="font-size: 1.2rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem;">Explainable AI (SHAP)</h3>
+      <p style="font-size: 0.9rem; color: #64748b; line-height: 1.6;">
+        Unpack the black box: See exact causal risk drivers like debt-to-income (DTI) ratio, income multipliers, and employment tenure.
+      </p>
+    </div>
+
+    <!-- 5. Multi-Tenant Data Isolation -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 2rem;">
+      <div style="width: 48px; height: 48px; border-radius: 12px; background: #eff6ff; color: #1a68ff; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1rem;">
+        🛡️
+      </div>
+      <h3 style="font-size: 1.2rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem;">Tenant Isolation Security</h3>
+      <p style="font-size: 0.9rem; color: #64748b; line-height: 1.6;">
+        Strict organization scoping guarantees your credit records, customer names, and loan portfolios are completely invisible to other banks.
+      </p>
+    </div>
+
+    <!-- 6. Audit Trail & CSV Exports -->
+    <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 2rem;">
+      <div style="width: 48px; height: 48px; border-radius: 12px; background: #f0fdfa; color: #0d9488; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1rem;">
+        📊
+      </div>
+      <h3 style="font-size: 1.2rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem;">Audit Trails &amp; Exportable Reports</h3>
+      <p style="font-size: 0.9rem; color: #64748b; line-height: 1.6;">
+        Immutable audit logging of every prediction, underwriting decision, and staff action, with 1-click CSV and PDF portfolio exports.
+      </p>
+    </div>
+  </div>
+</main>
+{% endblock %}

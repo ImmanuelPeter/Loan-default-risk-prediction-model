@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block title %}Loan Applications | Loan Default Risk Prediction System{% endblock %}
+
+{% block content %}
+<div class="dashboard-viewport">
+  {% include 'header.html' %}
+  <div class="dashboard-body-container">
+    {% include 'sidebar.html' %}
+    <main class="dashboard-main-content">
+      <div class="workspace-header-row">
+        <div>
+          <h1 class="welcome-heading">Loan Applications</h1>
+          <p class="welcome-subtext">Create applications, review submitted requests, and track lending decisions.</p>
+        </div>
+        <button class="btn btn-hero-primary" type="button" onclick="document.getElementById('newApplicationCard').scrollIntoView({behavior:'smooth'}); document.getElementById('newApplicationCard').open=true;">
+          + New application
+        </button>
+      </div>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div role="status" class="alert {% if category == 'danger' %}alert-danger{% elif category == 'warning' %}alert-warning{% else %}alert-success{% endif %}">
+          {{ message }}
+        </div>
+        {% endfor %}
+      {% endwith %}
+
+      <section class="metrics-row-grid" aria-label="Application summary" style="margin-bottom:1.5rem;">
+        <div class="stat-metric-card card-blue"><div><div class="stat-title">Total applications</div><div class="stat-value">{{ application_counts.total }}</div></div></div>
+        <div class="stat-metric-card card-orange"><div><div class="stat-title">Pending</div><div class="stat-value">{{ application_counts.pending }}</div></div></div>
+        <div class="stat-metric-card card-green"><div><div class="stat-title">Approved</div><div class="stat-value">{{ application_counts.approved }}</div></div></div>
+        <div class="stat-metric-card card-red"><div><div class="stat-title">Declined</div><div class="stat-value">{{ application_counts.declined }}</div></div></div>
+      </section>
+
+      <details id="newApplicationCard" class="chart-card-box" style="margin-bottom:1.5rem;">
+        <summary class="chart-box-header" style="cursor:pointer;margin:0;">
+          Create a loan application
+        </summary>
+        <form method="POST" action="{{ url_for('main.create_loan_application') }}" enctype="multipart/form-data" style="margin-top:1.25rem;">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;">
+            <label>Application reference<input type="text" value="{{ next_app_id }}" readonly></label>
+            <label>Registered borrower
+              <select name="applicant_id" id="applicantSelect" required onchange="updateApplicantDefaults(this)">
+                <option value="">Select borrower</option>
+                {% for applicant in applicants %}
+                <option value="{{ applicant.id }}" data-income="{{ applicant.monthly_income }}">{{ applicant.full_name }} &mdash; {{ applicant.applicant_id }}{% if applicant.id in borrowers_with_applications %} &mdash; Borrower already exists{% endif %}</option>
+                {% endfor %}
+              </select>
+            </label>
+            {% if not applicants %}
+            <div style="grid-column:1/-1;">
+              <a href="{{ url_for('main.applicants_list') }}" class="btn btn-secondary">Register a borrower first</a>
+            </div>
+            {% endif %}
+            <label>Requested amount (MWK)<input type="number" name="loan_amount" value="2000000" min="50000" step="50000" required></label>
+            <label>Loan purpose
+              <select name="loan_purpose" required>
+                <option value="Business">Business</option>
+                <option value="Agriculture">Agriculture</option>
+                <option value="Education">Education</option>
+                <option value="Personal">Personal</option>
+                <option value="Home Improvement">Home improvement</option>
+              </select>
+            </label>
+            <label>Loan term (months)
+              <select name="loan_term" required>
+                <option value="6">6 months</option>
+                <option value="12" selected>12 months</option>
+                <option value="18">18 months</option>
+                <option value="24">24 months</option>
+                <option value="36">36 months</option>
+              </select>
+            </label>
+            <label>Interest rate (%)<input type="number" name="interest_rate" value="18.0" min="0" step="0.1" required></label>
+            <label>Monthly income (MWK)<input type="number" name="monthly_income" id="incomeInput" value="500000" min="0" step="1000" required></label>
+            <label>Existing monthly debt (MWK)<input type="number" name="existing_monthly_debt" value="100000" min="0" step="1000" required></label>
+            <label>Supporting document<input type="file" name="supporting_document" accept=".pdf,.png,.jpg,.jpeg"></label>
+          </div>
+          <fieldset class="credit-history-fieldset">
+            <legend>Previous credit history</legend>
+            <p>Record what was known at the time of this application. This information is for underwriting review only and does not change the model prediction.</p>
+            <label>History status
+              <select name="credit_history_status" data-credit-history-status>
+                <option value="Not checked" selected>Not checked</option>
+                <option value="No prior loans">No previous loans</option>
+                <option value="History available">History available</option>
+              </select>
+            </label>
+            <div class="credit-history-fields" data-credit-history-fields hidden>
+              <label>Previous loans<input type="number" name="prior_loan_count" min="1" step="1"></label>
+              <label>Loans repaid in full<input type="number" name="prior_loans_repaid" min="0" step="1"></label>
+              <label>Late or missed payments in the last 12 months<input type="number" name="late_payments_12m" min="0" step="1"></label>
+              <label>Longest payment delay in the last 12 months (days)<input type="number" name="max_days_past_due_12m" min="0" step="1"></label>
+              <label>Previous default
+                <select name="previous_default">
+                  <option value="unknown" selected>Unknown</option>
+                  <option value="yes">Yes</option>
+                  <option value="no">No</option>
+                </select>
+              </label>
+            </div>
+          </fieldset>
+          <div style="display:flex;justify-content:flex-end;gap:.75rem;margin-top:1.25rem;border-top:1px solid #e2e8f0;padding-top:1rem;">
+            <button type="reset" class="btn btn-secondary">Clear</button>
+            <button type="submit" class="btn btn-hero-primary" {% if not applicants %}disabled{% endif %}>Submit application</button>
+          </div>
+        </form>
+      </details>
+
+      <section class="chart-card-box">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;flex-wrap:wrap;gap:.75rem;">
+          <div>
+            <h2 style="font-size:1.1rem;margin:0;">All applications</h2>
+            <p style="margin:.25rem 0 0;color:#64748b;font-size:.85rem;">{{ applications|length }} result{% if applications|length != 1 %}s{% endif %}</p>
+          </div>
+          <form method="GET" action="{{ url_for('main.loan_applications') }}" style="display:flex;gap:.5rem;flex-wrap:wrap;">
+            <select name="status" aria-label="Application status">
+              <option value="">All statuses</option>
+              {% for status in ['Pending','Under Review','Assessed','Approved','Declined'] %}
+              <option value="{{ status }}" {% if status_filter == status %}selected{% endif %}>{{ status }}</option>
+              {% endfor %}
+            </select>
+            <input type="text" name="search" value="{{ search or '' }}" placeholder="Search application or borrower">
+            <button type="submit" class="btn btn-secondary">Search</button>
+            {% if search or status_filter %}
+            <a href="{{ url_for('main.loan_applications') }}" class="btn btn-secondary">Clear</a>
+            {% endif %}
+          </form>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Application</th>
+                <th>Borrower</th>
+                <th>Requested</th>
+                <th>Purpose / term</th>
+                <th>Submitted</th>
+                <th>Status</th>
+                <th>Assessment</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for application in applications %}
+              {% set prediction = application.latest_prediction %}
+              <tr>
+                <td><strong style="color:#2563eb;">{{ application.app_id }}</strong></td>
+                <td>
+                  <strong>{{ application.applicant.full_name if application.applicant else 'Unknown borrower' }}</strong>
+                  <div style="font-size:.78rem;color:#64748b;">{{ application.applicant.applicant_id if application.applicant else '' }}</div>
+                </td>
+                <td><strong>MWK {{ '{:,.0f}'.format(application.loan_amount) }}</strong></td>
+                <td>{{ application.loan_purpose }}<div style="font-size:.78rem;color:#64748b;">{{ application.loan_term }} months</div></td>
+                <td>{{ application.created_at.strftime('%d %b %Y') }}</td>
+                <td>
+                  <span class="res-tier-pill" style="{% if application.status == 'Approved' %}background:#dcfce7;color:#166534;{% elif application.status == 'Declined' %}background:#fee2e2;color:#991b1b;{% elif application.status == 'Under Review' %}background:#fef3c7;color:#92400e;{% else %}background:#dbeafe;color:#1d4ed8;{% endif %}">
+                    {{ application.status }}
+                  </span>
+                </td>
+                <td>
+                  {% if prediction %}
+                  <strong>{{ prediction.default_probability }}%</strong>
+                  <div style="font-size:.78rem;color:#64748b;">{{ prediction.risk_category }}</div>
+                  {% else %}
+                  <span style="color:#94a3b8;">Not assessed</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <div style="display:flex;gap:.4rem;flex-wrap:wrap;">
+                    <a href="{{ url_for('main.assess_application_risk', app_id=application.id) }}" class="btn btn-landing-login" style="padding:.35rem .65rem;font-size:.78rem;">
+                      {% if prediction %}View assessment{% else %}Assess{% endif %}
+                    </a>
+                    {% if application.status in ['Pending','Under Review'] %}
+                    <details style="position:relative;">
+                      <summary class="btn btn-secondary" style="padding:.35rem .65rem;font-size:.78rem;">Edit</summary>
+                      <form method="POST" action="{{ url_for('main.update_loan_application', app_id=application.id) }}" style="position:absolute;right:0;z-index:20;width:340px;max-height:80vh;overflow-y:auto;margin-top:.5rem;padding:1rem;border-radius:10px;background:#fff;border:1px solid #cbd5e1;box-shadow:0 12px 30px rgba(15,23,42,.15);">
+                        <label>Loan amount<input type="number" name="loan_amount" value="{{ application.loan_amount }}" min="50000" step="50000"></label>
+                        <label>Purpose<input name="loan_purpose" value="{{ application.loan_purpose }}" maxlength="100"></label>
+                        <label>Term (months)<input type="number" name="loan_term" value="{{ application.loan_term }}" min="1"></label>
+                        <label>Interest rate (%)<input type="number" name="interest_rate" value="{{ application.interest_rate }}" min="0" step="0.1"></label>
+                        <label>Monthly income<input type="number" name="monthly_income" value="{{ application.monthly_income }}" min="0" step="1000"></label>
+                        <label>Existing monthly debt<input type="number" name="existing_monthly_debt" value="{{ application.existing_monthly_debt }}" min="0" step="1000"></label>
+                        <label>Credit history status
+                          <select name="credit_history_status" data-credit-history-status>
+                            <option value="Not checked" {% if application.credit_history_status == 'Not checked' %}selected{% endif %}>Not checked</option>
+                            <option value="No prior loans" {% if application.credit_history_status == 'No prior loans' %}selected{% endif %}>No previous loans</option>
+                            <option value="History available" {% if application.credit_history_status == 'History available' %}selected{% endif %}>History available</option>
+                          </select>
+                        </label>
+                        <div class="credit-history-fields" data-credit-history-fields {% if application.credit_history_status != 'History available' %}hidden{% endif %}>
+                          <label>Previous loans<input type="number" name="prior_loan_count" value="{{ application.prior_loan_count if application.prior_loan_count is not none else '' }}" min="1" step="1"></label>
+                          <label>Loans repaid in full<input type="number" name="prior_loans_repaid" value="{{ application.prior_loans_repaid if application.prior_loans_repaid is not none else '' }}" min="0" step="1"></label>
+                          <label>Late or missed payments in the last 12 months<input type="number" name="late_payments_12m" value="{{ application.late_payments_12m if application.late_payments_12m is not none else '' }}" min="0" step="1"></label>
+                          <label>Longest payment delay in the last 12 months (days)<input type="number" name="max_days_past_due_12m" value="{{ application.max_days_past_due_12m if application.max_days_past_due_12m is not none else '' }}" min="0" step="1"></label>
+                          <label>Previous default
+                            <select name="previous_default">
+                              <option value="unknown" {% if application.previous_default is none %}selected{% endif %}>Unknown</option>
+                              <option value="yes" {% if application.previous_default is sameas true %}selected{% endif %}>Yes</option>
+                              <option value="no" {% if application.previous_default is sameas false %}selected{% endif %}>No</option>
+                            </select>
+                          </label>
+                        </div>
+                        <button type="submit" class="btn btn-hero-primary" style="width:100%;margin-top:.75rem;">Save changes</button>
+                      </form>
+                    </details>
+                    {% endif %}
+                    {% if application.status in ['Pending','Under Review'] and current_user.role in ['Organization Administrator','Administrator'] %}
+                    <form method="POST" action="{{ url_for('main.delete_loan_application', app_id=application.id) }}" onsubmit="return confirm('Delete this application?');">
+                      <button type="submit" class="btn btn-secondary" style="padding:.35rem .65rem;font-size:.78rem;">Delete</button>
+                    </form>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="8" style="text-align:center;padding:2.25rem;color:#64748b;">No loan applications match the selected filters.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<script>
+function updateApplicantDefaults(select) {
+  const option = select.options[select.selectedIndex];
+  const income = option.getAttribute('data-income');
+  if (income) document.getElementById('incomeInput').value = income;
+}
+
+document.querySelectorAll('[data-credit-history-status]').forEach(status => {
+  const fields = status.closest('form').querySelector('[data-credit-history-fields]');
+  const updateFields = () => {
+    const show = status.value === 'History available';
+    fields.hidden = !show;
+    fields.querySelectorAll('input, select').forEach(input => {
+      input.disabled = !show;
+    });
+  };
+  status.addEventListener('change', updateFields);
+  updateFields();
+});
+</script>
+{% endblock %}

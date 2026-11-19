@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %}Settings | Loan Default Risk Prediction System{% endblock %}
+
+{% block content %}
+<div class="dashboard-viewport">
+  {% include 'header.html' %}
+
+  <div class="dashboard-body-container">
+    {% include 'sidebar.html' %}
+
+    <main class="dashboard-main-content">
+      <div class="workspace-header-row">
+        <div>
+          <h1 class="welcome-heading">Personal Workspace Settings</h1>
+          <p class="welcome-subtext">Review your account and adjust the risk categories used for your loan assessments.</p>
+        </div>
+
+        <button type="submit" form="settingsForm" class="btn btn-hero-primary">
+          💾 Save Changes
+        </button>
+      </div>
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, msg in messages %}
+            <div style="padding: 0.85rem 1.25rem; border-radius: 10px; margin-bottom: 1.5rem; background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; font-size: 0.92rem; font-weight: 600;">
+              {{ msg }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <form id="settingsForm" method="POST" action="{{ url_for('main.settings') }}">
+        <!-- Group 1: Risk Thresholds & Model Policies (Section 8 Example) -->
+        <div class="chart-card-box" style="margin-bottom: 2rem;">
+          <div class="chart-box-header" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 0.85rem; margin-bottom: 1.25rem;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a68ff" stroke-width="2.5"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>
+            <span>Your Risk Classification Thresholds</span>
+          </div>
+
+          <div style="background: #eff6ff; border-left: 4px solid #1a68ff; padding: 1rem 1.25rem; border-radius: 8px; margin-bottom: 1.5rem; font-size: 0.85rem; color: #1e40af;">
+            <strong>Important Policy Note:</strong> Modifying risk thresholds changes how Low, Medium, and High risk categories are assigned. It does not change the underlying assessment model.
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #0f172a; margin-bottom: 0.35rem;">
+                Low Risk Threshold (% Default Probability)
+              </label>
+              <input type="number" name="threshold_low" value="{{ settings.get('threshold_low', '20.0') }}" step="0.5" min="1" max="50" required style="width: 100%; padding: 0.7rem 0.9rem; border: 1.5px solid #cbd5e1; border-radius: 8px; outline: none;">
+              <span style="font-size: 0.78rem; color: #64748b;">Applicants below this probability are classified as Low Risk.</span>
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #0f172a; margin-bottom: 0.35rem;">
+                Medium Risk Ceiling Threshold (%)
+              </label>
+              <input type="number" name="threshold_medium" value="{{ settings.get('threshold_medium', '50.0') }}" step="0.5" min="20" max="90" required style="width: 100%; padding: 0.7rem 0.9rem; border: 1.5px solid #cbd5e1; border-radius: 8px; outline: none;">
+              <span style="font-size: 0.78rem; color: #64748b;">Applicants between the low threshold and this ceiling are Medium Risk. Equal to or above this is High Risk.</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-card-box">
+          <div class="chart-box-header" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 0.85rem; margin-bottom: 1.25rem;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a68ff" stroke-width="2.5"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            <span>Your Account</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+            <div>
+              <span style="display: block; font-size: 0.85rem; font-weight: 700; color: #0f172a; margin-bottom: 0.35rem;">Name</span>
+              <div>{{ current_user.name }}</div>
+            </div>
+
+            <div>
+              <span style="display: block; font-size: 0.85rem; font-weight: 700; color: #0f172a; margin-bottom: 0.35rem;">Email</span>
+              <div>{{ current_user.email }}</div>
+            </div>
+
+            <div>
+              <span style="display: block; font-size: 0.85rem; font-weight: 700; color: #0f172a; margin-bottom: 0.35rem;">Access Role</span>
+              <div>{{ current_user.role }}</div>
+            </div>
+
+          </div>
+        </div>
+
+
+        <div class="chart-card-box" style="margin-top: 2rem;">
+          <div class="chart-box-header" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 0.85rem; margin-bottom: 1.25rem;">
+            <span>Change Password</span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem;">
+            <label>Current password<input type="password" name="current_password" autocomplete="current-password"></label>
+            <label>New password (at least 12 characters)<input type="password" name="new_password" minlength="12" autocomplete="new-password"></label>
+            <label>Confirm new password<input type="password" name="confirm_password" minlength="12" autocomplete="new-password"></label>
+          </div>
+        </div>
+      </form>
+    </main>
+  </div>
+</div>
+{% endblock %}

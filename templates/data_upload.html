@@ -1,0 +1,298 @@
+{% extends "base.html" %}
+
+{% block title %}Module 2: Data Collection & Dataset Upload | Loan Risk System{% endblock %}
+
+{% block content %}
+<div class="dashboard-viewport">
+  {% include 'header.html' %}
+
+  <div class="dashboard-body-container">
+    {% include 'sidebar.html' %}
+
+    <main class="dashboard-main-content">
+      <!-- Page Header -->
+      <div class="workspace-header-row">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+            <span class="badge" style="background: #e0e7ff; color: #3730a3; font-weight: 700;">MODULE 2</span>
+            <span style="font-size: 0.85rem; color: #64748b; font-weight: 500;">Data Collection &amp; Applicant Management</span>
+          </div>
+          <h1 class="welcome-heading">Upload Your Loan Dataset</h1>
+          <p class="welcome-subtext">Add your historical loan records to the applicants and applications in your personal workspace.</p>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem;">
+          <a href="{{ url_for('main.download_sample_csv') }}" class="btn btn-secondary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Download CSV Template
+          </a>
+          <a href="{{ url_for('main.applicants_list') }}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+            Register Single Applicant
+          </a>
+        </div>
+      </div>
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}" style="margin-bottom: 1.5rem; padding: 0.85rem 1.25rem; border-radius: 8px; font-size: 0.88rem; font-weight: 500; {% if category == 'success' %}background: #dcfce7; color: #166534; border: 1px solid #bbf7d0;{% elif category == 'danger' or category == 'error' %}background: #fee2e2; color: #991b1b; border: 1px solid #fecaca;{% else %}background: #e0f2fe; color: #075985; border: 1px solid #bae6fd;{% endif %}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <!-- Quick Summary Metric Cards -->
+      <div class="stat-cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom: 2rem;">
+        <div class="stat-card">
+          <div class="stat-icon-wrapper" style="background: rgba(26, 104, 255, 0.1); color: #1a68ff;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+          </div>
+          <div>
+            <div class="stat-value">{{ total_cust }}</div>
+            <div class="stat-label">Registered Applicants</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon-wrapper" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+          </div>
+          <div>
+            <div class="stat-value">{{ total_apps }}</div>
+            <div class="stat-label">Loan Applications</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon-wrapper" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+          </div>
+          <div>
+            <div class="stat-value">CSV</div>
+            <div class="stat-label">Supported Upload Format</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon-wrapper" style="background: rgba(99, 102, 241, 0.1); color: #6366f1;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          </div>
+          <div>
+            <div class="stat-value">Private</div>
+            <div class="stat-label">Your Personal Workspace</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}" style="margin-bottom: 1.5rem; padding: 0.85rem 1.25rem; border-radius: 8px; font-size: 0.88rem; font-weight: 500; {% if category == 'success' %}background: #dcfce7; color: #166534; border: 1px solid #bbf7d0;{% elif category == 'danger' or category == 'error' %}background: #fee2e2; color: #991b1b; border: 1px solid #fecaca;{% else %}background: #e0f2fe; color: #075985; border: 1px solid #bae6fd;{% endif %}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <!-- Upload Form & Guidelines -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+        <!-- Upload Card -->
+        <div class="chart-card-box">
+          <div class="chart-box-header" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 0.85rem; margin-bottom: 1.25rem;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a68ff" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            <span>Batch Dataset Upload Form</span>
+          </div>
+
+          <form action="{{ url_for('main.data_upload') }}" method="POST" enctype="multipart/form-data">
+            <div style="border: 2px dashed #cbd5e1; border-radius: 12px; padding: 2.5rem 1.5rem; text-align: center; background: #f8fafc; margin-bottom: 1.5rem;">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.5" style="margin-bottom: 1rem;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="12" x2="12" y2="18"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+              <h3 style="font-size: 1rem; font-weight: 600; color: #0f172a; margin-bottom: 0.5rem;">Select CSV File from Computer</h3>
+              <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 1.25rem;">Upload files up to 25MB containing borrower records.</p>
+              
+              <input type="file" name="dataset_file" id="dataset_file" accept=".csv" required style="display: block; margin: 0 auto; font-size: 0.85rem; color: #475569;">
+            </div>
+
+            <div style="background: #f1f5f9; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+              <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer; margin: 0;">
+                <input type="checkbox" name="auto_assess" value="1" checked style="width: 18px; height: 18px; accent-color: #1a68ff;">
+                <span style="font-size: 0.88rem; font-weight: 600; color: #1e293b;">
+                  Automatically run a default-risk assessment upon import
+                </span>
+              </label>
+              <p style="font-size: 0.78rem; color: #64748b; margin: 0.35rem 0 0 1.9rem;">
+                If checked, each imported loan application will immediately receive an estimated default probability, risk classification, and key assessment factors.
+              </p>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              Upload &amp; Ingest Dataset
+            </button>
+          </form>
+        </div>
+
+        <!-- Ingestion Pipeline Guidelines -->
+        <div class="chart-card-box">
+          <div class="chart-box-header" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 0.85rem; margin-bottom: 1.25rem;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a68ff" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            <span>Module 2 Ingestion Specifications</span>
+          </div>
+
+          <div style="font-size: 0.88rem; color: #475569; line-height: 1.6;">
+            <p style="margin-bottom: 1rem;">
+              Your uploaded records are stored in your personal workspace and checked before they are added to your loan data:
+            </p>
+
+            <ul style="padding-left: 1.25rem; margin-bottom: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem;">
+              <li><strong>Duplicate Prevention:</strong> Applicant information is checked to reduce accidental duplicate records.</li>
+              <li><strong>Personal data:</strong> Applicant records and loans are kept separate from other user accounts.</li>
+              <li><strong>Automatic ID Generation:</strong> Generates unique applicant identifiers and loan codes for your records.</li>
+              <li><strong>Missing Value Safeguards:</strong> Any blank debt or employment values are routed through the Module 3 Preprocessing engine.</li>
+            </ul>
+
+            <div style="background: #eef2ff; border-left: 4px solid #1a68ff; padding: 1rem; border-radius: 0 8px 8px 0;">
+              <h4 style="font-size: 0.85rem; font-weight: 700; color: #1e3a8a; margin-bottom: 0.25rem;">Need a sample dataset?</h4>
+              <p style="font-size: 0.8rem; color: #3b82f6; margin-bottom: 0.75rem;">Download a sample CSV showing the columns used for loan applicant data.</p>
+              <a href="{{ url_for('main.download_sample_csv') }}" class="btn btn-secondary btn-sm">Download loan_default_dataset_sample.csv</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}" style="margin-bottom: 1.5rem; padding: 0.85rem 1.25rem; border-radius: 8px; font-size: 0.88rem; font-weight: 500; {% if category == 'success' %}background: #dcfce7; color: #166534; border: 1px solid #bbf7d0;{% elif category == 'danger' or category == 'error' %}background: #fee2e2; color: #991b1b; border: 1px solid #fecaca;{% else %}background: #e0f2fe; color: #075985; border: 1px solid #bae6fd;{% endif %}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <!-- Dataset Column Mapping Table -->
+      <div class="chart-card-box">
+        <div class="chart-box-header" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 0.85rem; margin-bottom: 1.25rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a68ff" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          <span>Required CSV Column Schema Reference</span>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Column Header</th>
+                <th>Data Type</th>
+                <th>Mandatory</th>
+                <th>Example Value</th>
+                <th>Module Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>full_name</code></td>
+                <td>String (Text)</td>
+                <td><span class="badge badge-high" style="background:#fee2e2; color:#991b1b;">Yes</span></td>
+                <td>John Banda</td>
+                <td>Borrower legal name</td>
+              </tr>
+              <tr>
+                <td><code>phone_number</code></td>
+                <td>String</td>
+                <td><span class="badge badge-high" style="background:#fee2e2; color:#991b1b;">Yes</span></td>
+                <td>0991234567</td>
+                <td>Primary phone for contact and OTP</td>
+              </tr>
+              <tr>
+                <td><code>email</code></td>
+                <td>Email String</td>
+                <td><span class="badge" style="background:#f1f5f9; color:#475569;">Optional</span></td>
+                <td>john.banda@example.mw</td>
+                <td>Applicant electronic mail</td>
+              </tr>
+              <tr>
+                <td><code>age</code></td>
+                <td>Integer</td>
+                <td><span class="badge badge-high" style="background:#fee2e2; color:#991b1b;">Yes</span></td>
+                <td>32</td>
+                <td>Applicant age (must be &ge; 18)</td>
+              </tr>
+              <tr>
+                <td><code>employment_status</code></td>
+                <td>Categorical</td>
+                <td><span class="badge badge-high" style="background:#fee2e2; color:#991b1b;">Yes</span></td>
+                <td>Employed / Self-Employed</td>
+                <td>Employed, Self-Employed, Business Owner, Contract, Unemployed</td>
+              </tr>
+              <tr>
+                <td><code>monthly_income</code></td>
+                <td>Float (MWK)</td>
+                <td><span class="badge badge-high" style="background:#fee2e2; color:#991b1b;">Yes</span></td>
+                <td>500000</td>
+                <td>Verified net monthly earnings</td>
+              </tr>
+              <tr>
+                <td><code>employment_duration</code></td>
+                <td>Float (Years)</td>
+                <td><span class="badge" style="background:#f1f5f9; color:#475569;">Optional</span></td>
+                <td>3.5</td>
+                <td>Years in current employment or enterprise</td>
+              </tr>
+              <tr>
+                <td><code>residential_area</code></td>
+                <td>String</td>
+                <td><span class="badge badge-high" style="background:#fee2e2; color:#991b1b;">Yes</span></td>
+                <td>Lilongwe Area 47</td>
+                <td>Residential address/district</td>
+              </tr>
+              <tr>
+                <td><code>loan_amount</code></td>
+                <td>Float (MWK)</td>
+                <td><span class="badge badge-high" style="background:#fee2e2; color:#991b1b;">Yes</span></td>
+                <td>2000000</td>
+                <td>Requested principal facility</td>
+              </tr>
+              <tr>
+                <td><code>loan_purpose</code></td>
+                <td>Categorical</td>
+                <td><span class="badge" style="background:#f1f5f9; color:#475569;">Optional</span></td>
+                <td>Business / Agriculture</td>
+                <td>Business, Agriculture, Education, Personal</td>
+              </tr>
+              <tr>
+                <td><code>loan_term</code></td>
+                <td>Integer (Months)</td>
+                <td><span class="badge badge-high" style="background:#fee2e2; color:#991b1b;">Yes</span></td>
+                <td>12</td>
+                <td>Amortization duration in months</td>
+              </tr>
+              <tr>
+                <td><code>existing_debt</code></td>
+                <td>Float (MWK)</td>
+                <td><span class="badge" style="background:#f1f5f9; color:#475569;">Optional</span></td>
+                <td>100000</td>
+                <td>Total active monthly debt servicing commitments</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}" style="margin-bottom: 1.5rem; padding: 0.85rem 1.25rem; border-radius: 8px; font-size: 0.88rem; font-weight: 500; {% if category == 'success' %}background: #dcfce7; color: #166534; border: 1px solid #bbf7d0;{% elif category == 'danger' or category == 'error' %}background: #fee2e2; color: #991b1b; border: 1px solid #fecaca;{% else %}background: #e0f2fe; color: #075985; border: 1px solid #bae6fd;{% endif %}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    </main>
+  </div>
+</div>
+{% endblock %}

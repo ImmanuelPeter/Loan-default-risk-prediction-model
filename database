@@ -1,0 +1,17 @@
+#!/usr/bin/env python3
+"""
+Database initialization and management script for
+Predictive Analytics for Loan Default Risk Assessment.
+"""
+from database import db
+from models import User, LoanAssessment
+
+def init_db(app):
+    with app.app_context():
+        db.create_all()
+        print("[Database] All database tables created successfully in instance/ directory.")
+
+if __name__ == "__main__":
+    from __init__ import create_app
+    app = create_app()
+    init_db(app)

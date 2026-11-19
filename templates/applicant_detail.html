@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}{{ applicant.full_name }} | Borrower profile{% endblock %}
+
+{% block content %}
+<div class="dashboard-viewport">
+  {% include 'header.html' %}
+  <div class="dashboard-body-container">
+    {% include 'sidebar.html' %}
+    <main class="dashboard-main-content">
+      <header class="workspace-header-row">
+        <div>
+          <h1 class="welcome-heading">{{ applicant.full_name }}</h1>
+          <p class="welcome-subtext">{{ applicant.applicant_id }} &middot; Borrower profile, applications, and prediction history.</p>
+        </div>
+        <a href="{{ url_for('main.applicants_list') }}" class="btn btn-secondary">Back to borrowers</a>
+      </header>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div role="status" style="padding: .85rem 1rem; margin-bottom: 1rem; border-radius: 10px; background: {% if category == 'danger' %}#fef2f2{% elif category == 'warning' %}#fffbeb{% else %}#ecfdf5{% endif %};">{{ message }}</div>
+        {% endfor %}
+      {% endwith %}
+
+      <section class="chart-card-box" style="margin-bottom: 1.5rem;">
+        <h2 style="margin-bottom: 1rem;">Borrower information</h2>
+        <form method="POST" action="{{ url_for('main.update_applicant', applicant_id=applicant.id) }}" enctype="multipart/form-data" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+          <label>Full name<input name="full_name" value="{{ applicant.full_name }}" maxlength="150" required></label>
+          <label>Phone number<input name="phone_number" value="{{ applicant.phone_number }}" maxlength="50" required></label>
+          <label>Email<input type="email" name="email" value="{{ applicant.email }}" maxlength="150" required></label>
+          <label>National ID<input name="national_id" value="{{ applicant.national_id or '' }}" maxlength="30"></label>
+          <label>Age<input type="number" name="age" value="{{ applicant.age }}" min="18" max="99" required></label>
+          <label>Gender<select name="gender"><option value="">Not specified</option><option value="Female" {% if applicant.gender == 'Female' %}selected{% endif %}>Female</option><option value="Male" {% if applicant.gender == 'Male' %}selected{% endif %}>Male</option><option value="Other" {% if applicant.gender == 'Other' %}selected{% endif %}>Other</option></select></label>
+          <label>Employment status<select name="employment_status"><option {% if applicant.employment_status == 'Employed' %}selected{% endif %}>Employed</option><option {% if applicant.employment_status == 'Self-Employed' %}selected{% endif %}>Self-Employed</option><option {% if applicant.employment_status == 'Business Owner' %}selected{% endif %}>Business Owner</option><option {% if applicant.employment_status == 'Contract' %}selected{% endif %}>Contract</option><option {% if applicant.employment_status == 'Unemployed' %}selected{% endif %}>Unemployed</option></select></label>
+          <label>Monthly income<input type="number" name="monthly_income" value="{{ applicant.monthly_income }}" min="0" step="1000" required></label>
+          <label>Employment duration (years)<input type="number" name="employment_duration" value="{{ applicant.employment_duration }}" min="0" step="0.5"></label>
+          <label>Existing debt<input type="number" name="existing_debt" value="{{ applicant.existing_debt }}" min="0" step="1000"></label>
+          <label>Location<input name="residential_area" value="{{ applicant.residential_area }}" maxlength="150"></label>
+          <label style="grid-column: 1/-1;">General credit history notes<small style="display:block;margin:.25rem 0;color:#64748b;">Record structured previous-loan history separately on each loan application.</small><textarea name="credit_history" rows="4" maxlength="2000">{{ applicant.credit_history or '' }}</textarea></label>
+          <label style="grid-column: 1/-1; display: flex; align-items: flex-start; gap: .55rem; color: #475569;">
+            <input type="checkbox" name="whatsapp_opt_in" value="yes" {% if applicant.whatsapp_opt_in %}checked{% endif %} style="margin-top: .2rem;">
+            <span>Borrower agrees to receive WhatsApp loan updates at the phone number above, which may include the application ID, approved amount, purpose, term, and interest rate. This is optional and can be withdrawn later.</span>
+          </label>
+          <label style="grid-column: 1/-1;">Supporting document<input type="file" name="supporting_document" accept=".pdf,.png,.jpg,.jpeg">{% if applicant.supporting_document_path %}<a href="{{ url_for('static', filename=applicant.supporting_document_path) }}" target="_blank" style="display:block;margin-top:.5rem;">View current document</a>{% endif %}</label>
+          <div style="grid-column: 1/-1; display: flex; gap: .75rem;">
+            <button type="submit" class="btn btn-hero-primary">Save borrower details</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="chart-card-box">
+        <h2 style="margin-bottom: 1rem;">Loan and prediction history ({{ applications|length }})</h2>
+        <div class="table-responsive">
+          <table class="table">
+            <thead><tr><th>Application</th><th>Amount</th><th>Status</th><th>Latest prediction</th><th>Submitted</th></tr></thead>
+            <tbody>
+              {% for application in applications %}
+              <tr>
+                <td><strong>{{ application.app_id }}</strong></td>
+                <td>MWK {{ '{:,.2f}'.format(application.loan_amount) }}</td>
+                <td>{{ application.status }}</td>
+                <td>{% if application.latest_prediction %}{{ application.latest_prediction.default_probability }}% &mdash; {{ application.latest_prediction.risk_category }}{% else %}Not assessed{% endif %}</td>
+                <td>{{ application.created_at.strftime('%d %b %Y') }}</td>
+              </tr>
+              {% else %}
+              <tr><td colspan="5" style="text-align: center; color: #64748b;">No loan applications for this borrower.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+{% endblock %}

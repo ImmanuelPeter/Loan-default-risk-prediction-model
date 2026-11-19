@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}{{ current_user.organization.name }} | Workspace{% endblock %}
+
+{% block content %}
+<div class="dashboard-viewport">
+  {% include 'header.html' %}
+  <div class="dashboard-body-container">
+    {% include 'sidebar.html' %}
+    <main class="dashboard-main-content">
+      <header class="workspace-header-row">
+        <div>
+          <p style="color: #64748b;">{{ current_user.organization.name }}</p>
+          <h1 class="welcome-heading">Welcome, {{ current_user.name }}</h1>
+          <p class="welcome-subtext">A clear view of your organization's borrowers, applications, and staff.</p>
+        </div>
+        <a href="{{ url_for('main.loan_applications') }}" class="btn btn-hero-primary">New application</a>
+      </header>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div role="status" class="alert {% if category == 'danger' %}alert-danger{% elif category == 'warning' %}alert-warning{% elif category == 'info' %}alert-info{% else %}alert-success{% endif %}">
+          {{ message }}
+        </div>
+        {% endfor %}
+      {% endwith %}
+
+      <section class="metrics-row-grid" aria-label="Organization overview">
+        <div class="stat-metric-card card-blue"><div><div class="stat-title">Borrowers</div><div class="stat-value">{{ borrower_count }}</div></div></div>
+        <div class="stat-metric-card card-green"><div><div class="stat-title">Applications</div><div class="stat-value">{{ total_apps }}</div></div></div>
+        <div class="stat-metric-card card-orange"><div><div class="stat-title">Awaiting review</div><div class="stat-value">{{ pending_apps }}</div></div></div>
+        <div class="stat-metric-card card-red"><div><div class="stat-title">Staff accounts</div><div class="stat-value">{{ staff_count }}</div></div></div>
+      </section>
+
+      <section class="chart-card-box" style="margin-top: 1.5rem;">
+        <div class="chart-box-header" style="margin-bottom: 1rem;">Recent loan applications</div>
+        <div class="table-responsive">
+          <table class="table">
+            <thead><tr><th>Reference</th><th>Borrower</th><th>Amount</th><th>Status</th><th>Submitted</th></tr></thead>
+            <tbody>
+              {% for application in recent_apps %}
+              <tr>
+                <td><strong>{{ application.app_id }}</strong></td>
+                <td>{{ application.applicant.full_name if application.applicant else 'Unknown' }}</td>
+                <td>MWK {{ '{:,.2f}'.format(application.loan_amount) }}</td>
+                <td>{{ application.status }}</td>
+                <td>{{ application.created_at.strftime('%d %b %Y') }}</td>
+              </tr>
+              {% else %}
+              <tr><td colspan="5" style="text-align: center; color: #64748b; padding: 2rem;">No applications yet. Add a borrower and submit your first application.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div style="display: flex; gap: .75rem; margin-top: 1rem; flex-wrap: wrap;">
+          <a href="{{ url_for('main.applicants_list') }}" class="btn btn-secondary">Manage borrowers</a>
+          <a href="{{ url_for('main.loan_applications') }}" class="btn btn-secondary">View applications</a>
+          {% if current_user.is_org_admin %}
+          <a href="{{ url_for('main.user_management') }}" class="btn btn-secondary">Manage staff</a>
+          {% endif %}
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+{% endblock %}

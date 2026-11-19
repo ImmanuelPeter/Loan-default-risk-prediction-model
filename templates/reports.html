@@ -1,0 +1,431 @@
+{% extends "base.html" %}
+
+{% set report_title_map = {
+  'applications': 'Loan Applications Report',
+  'predictions': 'Risk Assessment Report',
+  'distribution': 'Risk Distribution Report',
+  'outcomes': 'Loan Outcome Report'
+} %}
+{% set selected_report_title = report_title_map.get(tab, 'Loan Applications Report') %}
+
+{% block title %}{{ selected_report_title }} | Loan Default Risk Prediction System{% endblock %}
+
+{% block extra_head %}
+<style>
+  .print-report-header,
+  .print-footer {
+    display: none;
+  }
+
+  @media print {
+    @page {
+      size: A4 landscape;
+      margin: 12mm;
+    }
+
+    html, body {
+      width: 100%;
+      height: auto;
+      background: #ffffff !important;
+      color: #0f172a;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .dashboard-topbar,
+    .dashboard-sidebar,
+    .dashboard-body-container > aside,
+    .workspace-header-row,
+    [aria-label="Report tabs"],
+    .report-tabs,
+    .table-responsive + *,
+    .no-print {
+      display: none !important;
+    }
+
+    .dashboard-viewport,
+    .dashboard-body-container,
+    .dashboard-main-content {
+      display: block !important;
+      position: static !important;
+      width: 100% !important;
+      max-width: none !important;
+      height: auto !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      background: transparent !important;
+      border: 0 !important;
+      box-shadow: none !important;
+      overflow: visible !important;
+    }
+
+    .print-report-header {
+      display: block;
+      margin-bottom: 6mm;
+      padding-bottom: 4mm;
+      border-bottom: 2px solid #0f172a;
+      font-family: Arial, sans-serif;
+    }
+
+    .print-report-header .institution {
+      font-size: 16pt;
+      font-weight: 700;
+      margin-bottom: 2mm;
+    }
+
+    .print-report-header .system-name {
+      font-size: 11pt;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 1mm;
+    }
+
+    .print-report-header .report-name {
+      font-size: 14pt;
+      font-weight: 700;
+      margin: 3mm 0 2mm;
+    }
+
+    .print-report-header .meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 6mm;
+      font-size: 9pt;
+      color: #475569;
+    }
+
+    .chart-card-box {
+      width: 100% !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      border: 0 !important;
+      box-shadow: none !important;
+      break-inside: avoid;
+    }
+
+    .chart-card-box table {
+      width: 100% !important;
+      font-size: 8pt;
+    }
+
+    .chart-card-box th,
+    .chart-card-box td {
+      padding: 5px !important;
+    }
+
+    .chart-card-box thead {
+      display: table-header-group;
+    }
+
+    .chart-card-box tr {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    .print-footer {
+      display: block;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding-top: 2mm;
+      border-top: 1px solid #cbd5e1;
+      font-size: 8pt;
+      color: #64748b;
+      text-align: right;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-viewport">
+  {% include 'header.html' %}
+
+  <div class="dashboard-body-container">
+    {% include 'sidebar.html' %}
+
+    <main class="dashboard-main-content">
+      <section class="print-report-header" aria-label="Report print header">
+        <div class="institution">{{ current_user.organization.name if current_user.organization else 'Organization' }}</div>
+        <div class="system-name">Reports &amp; Analytics | Loan Default Risk Prediction System</div>
+        <div class="report-name">{{ selected_report_title }}</div>
+        <div class="meta">
+          <span>{{ current_user.name }} | {{ current_user.role }}</span>
+          <span id="printTimestamp">Generated on {{ generated_at.strftime('%m/%d/%y, %I:%M %p') if generated_at else '' }}</span>
+        </div>
+      </section>
+
+      <div class="workspace-header-row">
+        <div>
+          <h1 class="welcome-heading">Reports &amp; Analytics</h1>
+          <p class="welcome-subtext">Monitor portfolio metrics, analyze default risk distributions, and export audit-ready summaries.</p>
+        </div>
+
+        <div style="display: flex; gap: 0.75rem;">
+          <a href="{{ url_for('main.export_report_csv', report_type=tab) }}" class="btn btn-secondary">
+            📥 Export CSV
+          </a>
+          <button type="button" class="btn btn-hero-primary print-action" onclick="window.print()" aria-label="Print the selected report">
+            🖨️ Print Report
+          </button>
+        </div>
+      </div>
+
+      <!-- Report Tabs Navigation -->
+      <div class="report-tabs no-print" aria-label="Report tabs" style="display: flex; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 0.5rem; flex-wrap: wrap;">
+        <a href="{{ url_for('main.reports', tab='applications') }}" class="btn {% if tab == 'applications' %}btn-hero-primary{% else %}btn-secondary{% endif %}" style="border-radius: 8px; padding: 0.55rem 1.2rem; font-size: 0.88rem;">
+          A. Loan Applications Report
+        </a>
+        <a href="{{ url_for('main.reports', tab='predictions') }}" class="btn {% if tab == 'predictions' %}btn-hero-primary{% else %}btn-secondary{% endif %}" style="border-radius: 8px; padding: 0.55rem 1.2rem; font-size: 0.88rem;">
+          B. Risk Assessment Report
+        </a>
+        <a href="{{ url_for('main.reports', tab='distribution') }}" class="btn {% if tab == 'distribution' %}btn-hero-primary{% else %}btn-secondary{% endif %}" style="border-radius: 8px; padding: 0.55rem 1.2rem; font-size: 0.88rem;">
+          C. Risk Distribution Report
+        </a>
+        <a href="{{ url_for('main.reports', tab='outcomes') }}" class="btn {% if tab == 'outcomes' %}btn-hero-primary{% else %}btn-secondary{% endif %}" style="border-radius: 8px; padding: 0.55rem 1.2rem; font-size: 0.88rem;">
+          D. Loan Outcome Report
+        </a>
+      </div>
+
+      <!-- Tab A: Loan Application Report -->
+      {% if tab == 'applications' %}
+      <div class="chart-card-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+          <div>
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a;">Loan Application Summary Report</h3>
+            <p style="font-size: 0.85rem; color: #64748b;">Comprehensive list of all submitted loan requests and their current workflow status.</p>
+          </div>
+          <span class="badge badge-low">{{ applications|length }} Records</span>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>App ID</th>
+                <th>Applicant Name</th>
+                <th>Loan Amount</th>
+                <th>Purpose</th>
+                <th>Term</th>
+                <th>Monthly Income</th>
+                <th>Submission Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for a in applications %}
+              <tr>
+                <td><strong>{{ a.app_id }}</strong></td>
+                <td>{{ a.applicant.full_name if a.applicant else 'Unknown' }}</td>
+                <td><strong>MWK {{ '{:,.0f}'.format(a.loan_amount) }}</strong></td>
+                <td>{{ a.loan_purpose }}</td>
+                <td>{{ a.loan_term }} mos</td>
+                <td>MWK {{ '{:,.0f}'.format(a.monthly_income) }}</td>
+                <td>{{ a.created_at.strftime('%d %b %Y') }}</td>
+                <td>
+                  <span class="badge {% if a.status == 'Approved' %}badge-low{% elif a.status == 'Declined' %}badge-high{% else %}badge-moderate{% endif %}">
+                    {{ a.status }}
+                  </span>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab B: Risk Assessment Report -->
+      {% elif tab == 'predictions' %}
+      <div class="chart-card-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+          <div>
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a;">Risk Assessment Report</h3>
+            <p style="font-size: 0.85rem; color: #64748b;">Detailed risk scores and the key factors recorded for each assessment.</p>
+          </div>
+          <span class="badge badge-low">{{ predictions|length }} Assessed</span>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Application ID</th>
+                <th>Borrower</th>
+                <th>Default Probability</th>
+                <th>Risk Category</th>
+                <th>Assessment Date</th>
+                <th>Primary Risk Factor</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in predictions %}
+              {% set app = p.loan_application %}
+              <tr>
+                <td><strong style="color: #1a68ff;">{{ app.app_id }}</strong></td>
+                <td>{{ app.applicant.full_name if app.applicant else 'Borrower' }}</td>
+                <td><strong>{{ p.default_probability }}%</strong></td>
+                <td>
+                  <span class="badge {% if p.risk_category == 'Low Risk' %}badge-low{% elif p.risk_category == 'Medium Risk' %}badge-moderate{% else %}badge-high{% endif %}">
+                    {{ p.risk_category }}
+                  </span>
+                </td>
+                <td>{{ p.assessment_date.strftime('%d %b %Y, %H:%M') }}</td>
+                <td style="font-size: 0.82rem; max-width: 250px;">
+                  {{ p.key_insights[0] if p.key_insights else 'Standard evaluation' }}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab C: Risk Distribution Report (Section 4 Example) -->
+      {% elif tab == 'distribution' %}
+      <div class="chart-card-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+          <div>
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a;">Risk Distribution Aggregate Report</h3>
+            <p style="font-size: 0.85rem; color: #64748b;">Proportion of applications classified as low, medium, and high risk.</p>
+          </div>
+          <span class="badge badge-low">{{ total_assessed }} Total Assessed</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center; margin-bottom: 2rem;">
+          <!-- Breakdown Table (Section 4 Example) -->
+          <div>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Risk Category</th>
+                  <th>Number of Applications</th>
+                  <th>Portfolio Share</th>
+                  <th>Underwriting Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="legend-dot legend-green" style="display:inline-block; margin-right: 6px;"></span><strong>Low Risk</strong></td>
+                  <td><strong>{{ low_risk_count }}</strong></td>
+                  <td>{{ '%.1f'|format(low_risk_share) }}%</td>
+                  <td><span style="color: #059669; font-weight: 600;">Streamlined Approval</span></td>
+                </tr>
+                <tr>
+                  <td><span class="legend-dot legend-orange" style="display:inline-block; margin-right: 6px;"></span><strong>Medium Risk</strong></td>
+                  <td><strong>{{ med_risk_count }}</strong></td>
+                  <td>{{ '%.1f'|format(med_risk_share) }}%</td>
+                  <td><span style="color: #d97706; font-weight: 600;">Standard Verification</span></td>
+                </tr>
+                <tr>
+                  <td><span class="legend-dot legend-red" style="display:inline-block; margin-right: 6px;"></span><strong>High Risk</strong></td>
+                  <td><strong>{{ high_risk_count }}</strong></td>
+                  <td>{{ '%.1f'|format(high_risk_share) }}%</td>
+                  <td><span style="color: #dc2626; font-weight: 600;">Collateral / Decline</span></td>
+                </tr>
+                <tr style="background: #f8fafc; font-weight: 700;">
+                  <td>Total</td>
+                  <td>{{ total_assessed }}</td>
+                  <td>{{ '100.0' if total_assessed else '0.0' }}%</td>
+                  <td>-</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Visual Bar Proportion -->
+          <div style="background: #f8fafc; padding: 1.5rem; border-radius: 12px; border: 1px solid #e2e8f0;">
+            <div style="font-size: 0.9rem; font-weight: 700; margin-bottom: 1rem; color: #0f172a;">Portfolio Risk Concentration</div>
+            
+            <div style="margin-bottom: 1rem;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 0.25rem;">
+                <span>Low Risk (&lt; 20% PD)</span>
+                <strong>{{ '%.1f'|format(low_risk_share) }}% ({{ low_risk_count }})</strong>
+              </div>
+              <div style="background: #e2e8f0; height: 12px; border-radius: 6px; overflow: hidden;">
+                <div style="background: #10b981; width: {{ low_risk_share }}%; height: 100%;"></div>
+              </div>
+            </div>
+
+            <div style="margin-bottom: 1rem;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 0.25rem;">
+                <span>Medium Risk (20% &ndash; 50% PD)</span>
+                <strong>{{ '%.1f'|format(med_risk_share) }}% ({{ med_risk_count }})</strong>
+              </div>
+              <div style="background: #e2e8f0; height: 12px; border-radius: 6px; overflow: hidden;">
+                <div style="background: #f59e0b; width: {{ med_risk_share }}%; height: 100%;"></div>
+              </div>
+            </div>
+
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.82rem; margin-bottom: 0.25rem;">
+                <span>High Risk (&ge; 50% PD)</span>
+                <strong>{{ '%.1f'|format(high_risk_share) }}% ({{ high_risk_count }})</strong>
+              </div>
+              <div style="background: #e2e8f0; height: 12px; border-radius: 6px; overflow: hidden;">
+                <div style="background: #ef4444; width: {{ high_risk_share }}%; height: 100%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab D: Loan Outcome Report -->
+      {% elif tab == 'outcomes' %}
+      <div class="chart-card-box">
+        <div style="margin-bottom: 1.25rem;">
+          <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a;">Loan Decision &amp; Portfolio Outcome Report</h3>
+          <p style="font-size: 0.85rem; color: #64748b;">Application decisions, recorded loan status, and risk outcomes for this organization.</p>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Application</th>
+                <th>Borrower</th>
+                <th>Decision</th>
+                <th>Loan Status</th>
+                <th>Risk</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for a in applications %}
+              {% set prediction = a.latest_prediction %}
+              <tr>
+                <td><strong>{{ a.app_id }}</strong></td>
+                <td>{{ a.applicant.full_name if a.applicant else 'Unknown' }}</td>
+                <td>{{ a.decision.decision if a.decision else 'Not decided' }}</td>
+                <td>{{ a.status }}</td>
+                <td>{{ prediction.risk_category if prediction else 'Not assessed' }}</td>
+              </tr>
+              {% else %}
+              <tr><td colspan="5" style="text-align: center; color: #64748b;">No loan outcomes are available yet.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {% endif %}
+      <div class="print-footer">Confidential institutional report | {{ current_user.organization.name if current_user.organization else 'Organization' }}</div>
+    </main>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  window.addEventListener('beforeprint', function () {
+    const timestamp = document.getElementById('printTimestamp');
+    if (!timestamp) return;
+    timestamp.textContent = 'Generated on ' + new Intl.DateTimeFormat(undefined, {
+      year: '2-digit',
+      month: 'numeric',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit'
+    }).format(new Date());
+  });
+</script>
+{% endblock %}

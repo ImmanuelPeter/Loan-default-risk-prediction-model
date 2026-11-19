@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+
+{% block title %}Register Applicant | Loan Default Risk Prediction System{% endblock %}
+
+{% block content %}
+<div class="dashboard-viewport">
+  {% include 'header.html' %}
+
+  <div class="dashboard-body-container">
+    {% include 'sidebar.html' %}
+
+    <main class="dashboard-main-content">
+      <div class="workspace-header-row">
+        <div>
+          <h1 class="welcome-heading">Borrower Management</h1>
+          <p class="welcome-subtext">Register borrowers, maintain complete customer records, and manage borrower profiles.</p>
+        </div>
+
+        <button class="btn btn-hero-primary" type="button" onclick="document.getElementById('applicantFormCard').style.display='block'; document.getElementById('applicantFormCard').scrollIntoView({behavior: 'smooth'})">
+          + New Applicant Form
+        </button>
+      </div>
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, msg in messages %}
+            <div style="padding: 0.85rem 1.25rem; border-radius: 10px; margin-bottom: 1.5rem; background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; font-size: 0.92rem; font-weight: 600;">
+              {{ msg }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <!-- Register Applicant Form Card (Section 1) -->
+      <div id="applicantFormCard" class="chart-card-box" style="margin-bottom: 2rem;">
+        <div class="chart-box-header" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 0.85rem; margin-bottom: 1.25rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a68ff" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+          <span>Register a New Borrower</span>
+        </div>
+
+        <form method="POST" action="{{ url_for('main.register_applicant') }}" id="regApplicantForm" enctype="multipart/form-data">
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.2rem;">
+            <!-- Applicant ID (auto generated) -->
+            <div>
+              <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #475569; margin-bottom: 0.35rem;">Applicant ID (Generated Automatically)</label>
+              <input type="text" value="{{ next_code }}" readonly style="width: 100%; padding: 0.7rem 0.9rem; border: 1.5px solid #e2e8f0; background: #f8fafc; border-radius: 8px; font-weight: 700; color: #1a68ff;">
+            </div>
+
+            <!-- Full Name -->
+            <div>
+              <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #475569; margin-bottom: 0.35rem;">Full Name *</label>
+              <input type="text" name="full_name" placeholder="e.g. John Banda" required style="width: 100%; padding: 0.7rem 0.9rem; border: 1.5px solid #cbd5e1; border-radius: 8px; outline: none;">
+            </div>
+
+            <!-- Phone Number -->
+            <div>
+              <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #475569; margin-bottom: 0.35rem;">Phone Number *</label>
+              <input type="tel" name="phone_number" placeholder="e.g. 0991234567" required style="width: 100%; padding: 0.7rem 0.9rem; border: 1.5px solid #cbd5e1; border-radius: 8px; outline: none;">
+            </div>
+
+            <!-- Email Address -->
+            <div>
+              <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #475569; margin-bottom: 0.35rem;">Email Address *</label>
+              <input type="email" name="email" placeholder="e.g. john@example.com" required style="width: 100%; padding: 0.7rem 0.9rem; border: 1.5px solid #cbd5e1; border-radius: 8px; outline: none;">
+            </div>
+
+            <!-- Age -->
+            <div>
+              <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #475569; margin-bottom: 0.35rem;">Age (Years) *</label>
+              <input type="number" name="age" min="18" max="99" value="32" required style="width: 100%; padding: 0.7rem 0.9rem; border: 1.5px solid #cbd5e1; border-radius: 8px; outline: none;">
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #475569; margin-bottom: 0.35rem;">Gender</label>
+              <select name="gender" style="width: 100%; padding: 0.7rem 0.9rem; border: 1.5px solid #cbd5e1; border-radius: 8px; background: #fff;">
+                <option value="">Not specified</option>
+                <option value="Female">Female</option>
+                <option value="Male">Male</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #475569; margin-bottom: 0.35rem;">National ID</label>
+              <input type="text" name="national_id" maxlength="30" style="width: 100%; padding: 0.7rem 0.9rem; border: 1.5px solid #cbd5e1; border-radius: 8px;">
+            </div>
+
+            <!-- Employment Status -->
+            <div>
+              <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #475569; margin-bottom: 0.35rem;">Employment Status *</label>
+              <select name="employment_status" required style="width: 100%; padding: 0.7rem 0.9rem; border: 1.5px solid #cbd5e1; border-radius: 8px; outline: none; background: #fff;">
+                <option value="Employed">Employed</option>
+                <option value="Self-Employed">Self-Employed</option>
+                <option value="Business Owner">Business Owner</option>
+                <option value="Contract">Contract Worker</option>
+                <option value="Unemployed">Unemployed</option>
+              </select>
+            </div>
+
+            <!-- Monthly Income (MWK) -->
+            <div>
+              <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #475569; margin-bottom: 0.35rem;">Monthly Income (MWK) *</label>
+              <input type="number" name="monthly_income" value="500000" step="10000" min="10000" required style="width: 100%; padding: 0.7rem 0.9rem; border: 1.5px solid #cbd5e1; border-radius: 8px; outline: none;">
+            </div>
+
+            <!-- Employment Duration -->
+            <div>
+              <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #475569; margin-bottom: 0.35rem;">Employment Duration (Years) *</label>
+              <input type="number" name="employment_duration" value="3" step="0.5" min="0" required style="width: 100%; padding: 0.7rem 0.9rem; border: 1.5px solid #cbd5e1; border-radius: 8px; outline: none;">
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #475569; margin-bottom: 0.35rem;">Existing Debt (MWK)</label>
+              <input type="number" name="existing_debt" value="0" step="1000" min="0" style="width: 100%; padding: 0.7rem 0.9rem; border: 1.5px solid #cbd5e1; border-radius: 8px;">
+            </div>
+
+            <!-- Residential Area -->
+            <div>
+              <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #475569; margin-bottom: 0.35rem;">Residential Area *</label>
+              <input type="text" name="residential_area" placeholder="e.g. Lilongwe" value="Lilongwe" required style="width: 100%; padding: 0.7rem 0.9rem; border: 1.5px solid #cbd5e1; border-radius: 8px; outline: none;">
+            </div>
+
+            <div style="grid-column: 1/-1;">
+              <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #475569; margin-bottom: 0.35rem;">General credit history notes</label>
+              <small style="display: block; margin-bottom: 0.4rem; color: #64748b;">Enter background notes only. Record structured prior-loan history on each loan application.</small>
+              <textarea name="credit_history" rows="3" maxlength="2000" style="width: 100%; padding: 0.7rem 0.9rem; border: 1.5px solid #cbd5e1; border-radius: 8px;"></textarea>
+            </div>
+            <label style="grid-column: 1/-1; display: flex; align-items: flex-start; gap: .55rem; color: #475569;">
+              <input type="checkbox" name="whatsapp_opt_in" value="yes" style="margin-top: .2rem;">
+              <span>Borrower agrees to receive WhatsApp loan updates at the phone number above, which may include the application ID, approved amount, purpose, term, and interest rate. This is optional and can be withdrawn later.</span>
+            </label>
+            <div style="grid-column: 1/-1;">
+              <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #475569; margin-bottom: 0.35rem;">Supporting Document</label>
+              <input type="file" name="supporting_document" accept=".pdf,.png,.jpg,.jpeg" style="width: 100%; padding: 0.55rem; border: 1.5px solid #cbd5e1; border-radius: 8px; background: #fff;">
+            </div>
+
+            <!-- Registration Date -->
+            <div>
+              <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #475569; margin-bottom: 0.35rem;">Registration Date</label>
+              <input type="text" value="Today (Auto-assigned)" readonly style="width: 100%; padding: 0.7rem 0.9rem; border: 1.5px solid #e2e8f0; background: #f8fafc; border-radius: 8px; color: #64748b;">
+            </div>
+          </div>
+
+          <!-- Bottom Action Buttons: Save Applicant, Clear Form, Cancel -->
+          <div style="display: flex; justify-content: flex-end; gap: 0.85rem; margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid #f1f5f9;">
+            <button type="button" class="btn btn-secondary" onclick="document.getElementById('applicantFormCard').style.display='none'">Cancel</button>
+            <button type="reset" class="btn btn-secondary">Clear Form</button>
+            <button type="submit" class="btn btn-landing-register" style="padding: 0.7rem 1.6rem; font-size: 0.95rem;">
+              Save Applicant
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Applicants Directory Table -->
+      <div class="chart-card-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 1rem;">
+          <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a;">
+            Registered Borrowers ({{ applicants|length }})
+          </h3>
+
+          <!-- Search form -->
+          <form method="GET" action="{{ url_for('main.applicants_list') }}" style="display: flex; gap: 0.5rem;">
+            <input type="text" name="search" value="{{ search_query or '' }}" placeholder="Search name, ID, phone..." style="padding: 0.5rem 0.9rem; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.88rem; outline: none;">
+            <input type="date" name="date_from" value="{{ date_from or '' }}" aria-label="Registered from" style="padding: 0.5rem 0.7rem; border: 1.5px solid #cbd5e1; border-radius: 8px; font-size: 0.88rem;">
+            <button type="submit" class="btn btn-landing-login" style="padding: 0.5rem 1rem;">Search</button>
+            {% if search_query or date_from %}
+              <a href="{{ url_for('main.applicants_list') }}" class="btn btn-secondary" style="padding: 0.5rem 0.8rem;">Clear</a>
+            {% endif %}
+          </form>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Applicant ID</th>
+                <th>Full Name</th>
+                <th>Phone Number</th>
+                <th>Email Address</th>
+                <th>Employment</th>
+                <th>Monthly Income</th>
+                <th>Tenure</th>
+                <th>Location</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for a in applicants %}
+              <tr>
+                <td><strong style="color: #1a68ff;">{{ a.applicant_id }}</strong></td>
+                <td><strong>{{ a.full_name }}</strong> ({{ a.age }} yrs)</td>
+                <td>{{ a.phone_number }}</td>
+                <td>{{ a.email }}</td>
+                <td>
+                  <span class="res-tier-pill" style="font-size: 0.75rem; padding: 0.2rem 0.6rem;">
+                    {{ a.employment_status }}
+                  </span>
+                </td>
+                <td>MWK {{ '{:,.0f}'.format(a.monthly_income) }}</td>
+                <td>{{ a.employment_duration }} yrs</td>
+                <td>{{ a.residential_area }}</td>
+                <td>
+                  <div style="display: flex; gap: .4rem; flex-wrap: wrap;">
+                    <a href="{{ url_for('main.applicant_detail', applicant_id=a.id) }}" class="btn btn-landing-login" style="padding: 0.3rem 0.7rem; font-size: 0.8rem;">View / Edit</a>
+                    {% if current_user.role in ['Organization Administrator', 'Administrator'] %}
+                    <form method="POST" action="{{ url_for('main.delete_applicant', applicant_id=a.id) }}" onsubmit="return confirm('Delete this borrower record?');">
+                      <button type="submit" class="btn btn-secondary" style="padding: 0.3rem 0.7rem; font-size: 0.8rem;">Delete</button>
+                    </form>
+                    {% endif %}
+                  </div>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="9" style="text-align: center; padding: 2rem; color: #64748b;">
+                  No applicant records found. Use the form above to register an applicant.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+{% endblock %}

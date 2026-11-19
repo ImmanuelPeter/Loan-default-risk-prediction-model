@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}Company profile | {{ organization.name }}{% endblock %}
+
+{% block content %}
+<div class="dashboard-viewport">
+  {% include 'header.html' %}
+  <div class="dashboard-body-container">
+    {% include 'sidebar.html' %}
+    <main class="dashboard-main-content">
+      <header class="workspace-header-row">
+        <div>
+          <h1 class="welcome-heading">Company profile</h1>
+          <p class="welcome-subtext">View and manage institutional details, approval status, and profile branding.</p>
+        </div>
+      </header>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div role="status" style="padding: .85rem 1rem; margin-bottom: 1rem; border-radius: 10px; background: {% if category == 'danger' %}#fef2f2{% elif category == 'warning' %}#fffbeb{% else %}#ecfdf5{% endif %};">{{ message }}</div>
+        {% endfor %}
+      {% endwith %}
+
+      <section class="chart-card-box" style="margin-bottom: 1.5rem;">
+        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+          {% if organization.logo_path %}
+          <img src="{{ url_for('static', filename=organization.logo_path) }}" alt="{{ organization.name }} logo" style="width: 88px; height: 88px; object-fit: contain; border-radius: 12px; border: 1px solid #e2e8f0;">
+          {% else %}
+          <div style="width: 88px; height: 88px; border-radius: 12px; background: #eff6ff; color: #1a68ff; display: grid; place-items: center; font-size: 1.8rem; font-weight: 800;">{{ organization.name[0]|upper }}</div>
+          {% endif %}
+          <div>
+            <h2 style="margin-bottom: .35rem;">{{ organization.name }}</h2>
+            <p style="color: #64748b;">{{ organization.org_code }} &middot; {{ organization.org_type }}</p>
+            <span class="badge {% if organization.verification_status == 'Verified' %}badge-low{% else %}badge-moderate{% endif %}">
+              {{ organization.verification_status }}
+            </span>
+          </div>
+        </div>
+      </section>
+
+      <section class="chart-card-box">
+        {% if current_user.is_org_admin %}
+        <form method="POST" enctype="multipart/form-data" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+          <label>Company name
+            <input name="name" value="{{ organization.name }}" maxlength="150" required>
+          </label>
+          <label>Institution type
+            <input name="org_type" value="{{ organization.org_type }}" maxlength="80">
+          </label>
+          <label>Email address
+            <input type="email" name="email" value="{{ organization.email }}" maxlength="150" required>
+          </label>
+          <label>Phone number
+            <input name="phone" value="{{ organization.phone }}" maxlength="50">
+          </label>
+          <label>Location
+            <input name="location" value="{{ organization.location or '' }}" maxlength="100">
+          </label>
+          <label>Physical address
+            <input name="address" value="{{ organization.address or '' }}" maxlength="255">
+          </label>
+          <label>Company logo
+            <input type="file" name="logo" accept=".png,.jpg,.jpeg,.webp,image/png,image/jpeg,image/webp">
+          </label>
+          <div style="display: flex; align-items: end;">
+            <button type="submit" class="btn btn-hero-primary">Save company details</button>
+          </div>
+        </form>
+        {% else %}
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+          <p><strong>Email</strong><br>{{ organization.email }}</p>
+          <p><strong>Phone</strong><br>{{ organization.phone }}</p>
+          <p><strong>Location</strong><br>{{ organization.location or '-' }}</p>
+          <p><strong>Physical address</strong><br>{{ organization.address or '-' }}</p>
+        </div>
+        {% endif %}
+      </section>
+    </main>
+  </div>
+</div>
+{% endblock %}

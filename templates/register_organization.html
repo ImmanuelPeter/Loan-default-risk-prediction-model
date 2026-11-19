@@ -1,0 +1,375 @@
+{% extends "base.html" %}
+
+{% block title %}Create Organization Account{% endblock %}
+{% block body_class %}create-account-page{% endblock %}
+
+{% block extra_head %}
+<style>
+  .create-account-page {
+    min-height: 100vh;
+    background:
+      linear-gradient(115deg, rgba(10, 23, 45, .70), rgba(15, 34, 57, .38)),
+      url("{{ url_for('static', filename='images/office-background.png') }}") center / cover fixed no-repeat;
+  }
+
+  .create-account-page .landing-navbar {
+    position: relative;
+    background: rgba(255, 250, 240, .88);
+    border-bottom-color: rgba(255, 255, 255, .42);
+    backdrop-filter: blur(12px);
+  }
+
+  .registration-main {
+    width: min(100% - 2rem, 940px);
+    margin: 0 auto;
+    padding: clamp(2.5rem, 6vw, 4.5rem) 0;
+  }
+
+  .registration-heading {
+    max-width: 700px;
+    margin: 0 auto 1.75rem;
+    color: #fff;
+    text-align: center;
+    text-shadow: 0 2px 14px rgba(0, 0, 0, .28);
+  }
+
+  .registration-eyebrow {
+    display: inline-block;
+    margin-bottom: .65rem;
+    color: #f5dfb2;
+    font-size: .78rem;
+    font-weight: 750;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+  }
+
+  .registration-heading h1 {
+    color: inherit;
+    font-size: clamp(1.9rem, 4vw, 2.65rem);
+    line-height: 1.15;
+  }
+
+  .registration-heading p {
+    max-width: 640px;
+    margin: .8rem auto 0;
+    color: rgba(255, 255, 255, .91);
+    font-size: 1rem;
+  }
+
+  .registration-alert {
+    margin-bottom: 1rem;
+    padding: .9rem 1rem;
+    border: 1px solid currentColor;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, .96);
+    font-weight: 600;
+  }
+
+  .registration-card {
+    display: grid;
+    gap: 1.5rem;
+    padding: clamp(1.25rem, 4vw, 2.5rem);
+    border: 1px solid rgba(255, 255, 255, .9);
+    border-radius: 22px;
+    background: rgba(255, 250, 240, .60);
+    box-shadow:
+      0 24px 70px rgba(5, 15, 32, .3),
+      inset 0 1px 0 rgba(255, 255, 255, .8);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+
+  .registration-section + .registration-section {
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(148, 163, 184, .34);
+  }
+
+  .registration-section-heading {
+    display: flex;
+    align-items: flex-start;
+    gap: .85rem;
+    margin-bottom: 1.2rem;
+  }
+
+  .registration-step {
+    display: grid;
+    width: 2rem;
+    height: 2rem;
+    flex: 0 0 2rem;
+    place-items: center;
+    border-radius: 50%;
+    background: #e8efff;
+    color: #1a56d6;
+    font-size: .9rem;
+    font-weight: 750;
+  }
+
+  .registration-section-heading h2 {
+    color: #17243b;
+    font-size: 1.15rem;
+    line-height: 1.35;
+  }
+
+  .registration-section-heading p {
+    margin-top: .2rem;
+    color: #66748a;
+    font-size: .9rem;
+  }
+
+  .registration-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem 1.15rem;
+  }
+
+  .registration-field {
+    display: grid;
+    align-content: start;
+    gap: .4rem;
+    color: #26364f;
+    font-size: .9rem;
+    font-weight: 650;
+  }
+
+  .registration-field-full {
+    grid-column: 1 / -1;
+  }
+
+  #custom-company-type-field[hidden] {
+    display: none;
+  }
+
+  .registration-field input,
+  .registration-field select {
+    width: 100%;
+    min-height: 46px;
+    padding: .7rem .8rem;
+    border: 1px solid #cbd4df;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, .88);
+    color: #17243b;
+    font: inherit;
+    font-weight: 400;
+    transition: border-color .2s ease, box-shadow .2s ease;
+  }
+
+  .registration-field input:focus,
+  .registration-field select:focus {
+    border-color: #1a68ff;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(26, 104, 255, .14);
+  }
+
+  .registration-field small {
+    color: #66748a;
+    font-size: .8rem;
+    font-weight: 400;
+  }
+
+  .registration-approval-note {
+    padding: .9rem 1rem;
+    border: 1px solid #d6e2f5;
+    border-radius: 12px;
+    background: rgba(239, 246, 255, .84);
+    color: #334c70;
+    font-size: .88rem;
+  }
+
+  .registration-actions {
+    display: grid;
+    grid-template-columns: minmax(0, .7fr) minmax(0, 1.5fr);
+    gap: .85rem;
+  }
+
+  .registration-actions .registration-submit,
+  .registration-home {
+    width: 100%;
+    min-height: 50px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    font-size: 1rem;
+  }
+
+  .registration-home {
+    border: 1px solid #b8c2d0;
+    background: rgba(255, 255, 255, .72);
+    color: #26364f;
+    font-weight: 650;
+  }
+
+  .registration-home:hover {
+    border-color: #1a68ff;
+    background: rgba(255, 255, 255, .92);
+    color: #1a56d6;
+  }
+
+  @media (max-width: 600px) {
+    .create-account-page .landing-navbar {
+      padding: .8rem 1rem;
+    }
+
+    .registration-main {
+      width: min(100% - 1.25rem, 940px);
+      padding: 2rem 0;
+    }
+
+    .registration-fields {
+      grid-template-columns: 1fr;
+    }
+
+    .registration-field-full {
+      grid-column: auto;
+    }
+
+    .registration-actions {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<nav class="landing-navbar">
+  <a class="brand-container" href="{{ url_for('main.index') }}">
+    <img src="{{ url_for('static', filename='images/bank-logo.svg') }}" alt="">
+    <span>Loan Workspace</span>
+  </a>
+  <a href="{{ url_for('auth.login') }}" class="btn-landing-login">Log in</a>
+</nav>
+
+<main class="registration-main">
+  <header class="registration-heading">
+    <span class="registration-eyebrow">Organization workspace</span>
+    <h1>Create your organization account</h1>
+    <p>Set up your company profile and first administrator. Your request will stay pending until the platform owner approves it; you can log in after approval.</p>
+  </header>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+    <div role="status" class="registration-alert" style="color: {% if category == 'danger' %}#991b1b{% elif category == 'warning' %}#92400e{% else %}#065f46{% endif %};">
+      {{ message }}
+    </div>
+    {% endfor %}
+  {% endwith %}
+
+  <form method="POST" action="{{ url_for('main.register_organization') }}" class="registration-card">
+    <section class="registration-section" aria-labelledby="company-profile-heading">
+      <div class="registration-section-heading">
+        <span class="registration-step" aria-hidden="true">1</span>
+        <div>
+          <h2 id="company-profile-heading">Company profile</h2>
+          <p>Provide the official details for your lending institution.</p>
+        </div>
+      </div>
+      <div class="registration-fields">
+        <label class="registration-field">
+          Company name
+          <input name="org_name" minlength="2" maxlength="150" autocomplete="organization" value="{{ request.form.get('org_name', '') }}" required>
+        </label>
+        <label class="registration-field">
+          Company type
+          <select name="org_type" required>
+            <option value="Microfinance Institution" {% if request.form.get('org_type', 'Microfinance Institution') == 'Microfinance Institution' %}selected{% endif %}>Microfinance Institution</option>
+            <option value="Commercial Bank" {% if request.form.get('org_type') == 'Commercial Bank' %}selected{% endif %}>Commercial Bank</option>
+            <option value="Savings & Credit Cooperative (SACCO)" {% if request.form.get('org_type') == 'Savings & Credit Cooperative (SACCO)' %}selected{% endif %}>Savings &amp; Credit Cooperative (SACCO)</option>
+            <option value="Fintech Digital Lender" {% if request.form.get('org_type') == 'Fintech Digital Lender' %}selected{% endif %}>Fintech Digital Lender</option>
+            <option value="Development Finance Institution" {% if request.form.get('org_type') == 'Development Finance Institution' %}selected{% endif %}>Development Finance Institution</option>
+            <option value="Other" {% if request.form.get('org_type') == 'Other' %}selected{% endif %}>Other</option>
+          </select>
+        </label>
+        <label class="registration-field registration-field-full" id="custom-company-type-field" {% if request.form.get('org_type') != 'Other' %}hidden{% endif %}>
+          Enter company type
+          <input name="org_type_other" maxlength="80" minlength="2" autocomplete="organization-title" value="{{ request.form.get('org_type_other', '') }}" {% if request.form.get('org_type') == 'Other' %}required{% endif %}>
+        </label>
+        <label class="registration-field">
+          Company email
+          <input type="email" name="org_email" maxlength="150" autocomplete="organization" value="{{ request.form.get('org_email', '') }}" required>
+        </label>
+        <label class="registration-field">
+          Company phone number
+          <input type="tel" name="org_phone" maxlength="13" autocomplete="tel" inputmode="tel" pattern="\+265[1289][0-9]{8}" placeholder="+265991234567" title="Enter a Malawi phone number starting with +265 and 9 digits." value="{{ request.form.get('org_phone', '') }}" required>
+          <small>Use the Malawi country code, for example +265991234567.</small>
+        </label>
+        <label class="registration-field">
+          Company location
+          <input name="org_location" maxlength="100" autocomplete="address-level2" placeholder="City or district" value="{{ request.form.get('org_location', '') }}" required>
+        </label>
+        <label class="registration-field registration-field-full">
+          Office address
+          <input name="org_address" maxlength="255" autocomplete="street-address" value="{{ request.form.get('org_address', '') }}" required>
+        </label>
+      </div>
+    </section>
+
+    <section class="registration-section" aria-labelledby="administrator-heading">
+      <div class="registration-section-heading">
+        <span class="registration-step" aria-hidden="true">2</span>
+        <div>
+          <h2 id="administrator-heading">First administrator</h2>
+          <p>This person will manage the organization workspace after approval.</p>
+        </div>
+      </div>
+      <div class="registration-fields">
+        <label class="registration-field registration-field-full">
+          Full name
+          <input name="admin_name" minlength="2" maxlength="150" autocomplete="name" value="{{ request.form.get('admin_name', '') }}" required>
+        </label>
+        <label class="registration-field registration-field-full">
+          Administrator email used to log in
+          <input type="email" name="admin_email" maxlength="150" autocomplete="email" value="{{ request.form.get('admin_email', '') }}" required>
+          <small>Use an address you can access. It will be used to sign in to the workspace.</small>
+        </label>
+        <label class="registration-field">
+          Administrator phone number
+          <input type="tel" name="admin_phone" maxlength="13" autocomplete="tel" inputmode="tel" pattern="\+265[1289][0-9]{8}" placeholder="+265991234567" title="Enter a Malawi phone number starting with +265 and 9 digits." value="{{ request.form.get('admin_phone', '') }}" required>
+          <small>Use the Malawi country code, for example +265991234567.</small>
+        </label>
+        <label class="registration-field">
+          Malawi National ID number
+          <input name="admin_national_id" minlength="6" maxlength="30" pattern="[A-Za-z0-9 -]{6,30}" autocomplete="off" placeholder="As shown on your Malawi National ID" value="{{ request.form.get('admin_national_id', '') }}" required>
+          <small>Enter the ID as shown on your card. Letters and numbers are accepted; spaces and hyphens are optional.</small>
+        </label>
+        <label class="registration-field">
+          Password
+          <input type="password" name="admin_password" minlength="12" autocomplete="new-password" aria-describedby="password-guidance" required>
+          <small id="password-guidance">At least 12 characters.</small>
+        </label>
+        <label class="registration-field">
+          Confirm password
+          <input type="password" name="admin_confirm_password" minlength="12" autocomplete="new-password" required>
+        </label>
+      </div>
+    </section>
+
+    <p class="registration-approval-note">After you submit, the platform owner reviews your organization request. You can sign in once the account is approved.</p>
+    <div class="registration-actions">
+      <a href="{{ url_for('main.index') }}" class="registration-home">Back to home</a>
+      <button type="submit" class="btn btn-hero-primary registration-submit">
+        Create account and submit for approval
+      </button>
+    </div>
+  </form>
+</main>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  (() => {
+    const companyType = document.querySelector('select[name="org_type"]');
+    const customTypeField = document.getElementById('custom-company-type-field');
+    const customTypeInput = customTypeField.querySelector('input');
+
+    const updateCustomTypeField = () => {
+      const isOther = companyType.value === 'Other';
+      customTypeField.hidden = !isOther;
+      customTypeInput.required = isOther;
+      if (!isOther) customTypeInput.value = '';
+    };
+
+    companyType.addEventListener('change', updateCustomTypeField);
+    updateCustomTypeField();
+  })();
+</script>
+{% endblock %}

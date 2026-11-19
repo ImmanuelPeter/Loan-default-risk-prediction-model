@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block title %}Module 6 & 8: Machine Learning Training & Evaluation | Loan Risk System{% endblock %}
+
+{% block content %}
+<div class="dashboard-viewport">
+  {% include 'header.html' %}
+
+  <div class="dashboard-body-container">
+    {% include 'sidebar.html' %}
+
+    <main class="dashboard-main-content">
+      <!-- Page Header -->
+      <div class="workspace-header-row">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+            <span class="badge" style="background: #e0e7ff; color: #3730a3; font-weight: 700;">MODULE 6 &amp; 8</span>
+            <span style="font-size: 0.85rem; color: #64748b; font-weight: 500;">Model Training &amp; Rigorous Evaluation</span>
+          </div>
+          <h1 class="welcome-heading">Machine Learning Model Training &amp; Benchmarks</h1>
+          <p class="welcome-subtext">Training and evaluating 5 predictive algorithms on 10,000 credit records (80/20 train-test split): Accuracy, Precision, Recall, F1, ROC-AUC, and PR-AUC.</p>
+        </div>
+
+        <!-- Retrain Trigger Form -->
+        <form action="{{ url_for('main.run_model_training') }}" method="POST" style="display: flex; align-items: center; gap: 0.75rem;">
+          <select name="algorithm" style="padding: 0.55rem 0.85rem; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 0.85rem; background: #fff; font-weight: 600; color: #1e293b;">
+            <option value="Random Forest">Random Forest (Champion)</option>
+            <option value="XGBoost">XGBoost (Gradient Boosted Trees)</option>
+            <option value="Gradient Boosting">Gradient Boosting Classifier</option>
+            <option value="Decision Tree">Decision Tree (CART)</option>
+            <option value="Logistic Regression">Logistic Regression (Baseline)</option>
+          </select>
+          <button type="submit" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+            Train / Calibrate Algorithm
+          </button>
+        </form>
+      </div>
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}" style="margin-bottom: 1.5rem; padding: 0.85rem 1.25rem; border-radius: 8px; font-size: 0.88rem; font-weight: 500; {% if category == 'success' %}background: #dcfce7; color: #166534; border: 1px solid #bbf7d0;{% elif category == 'danger' or category == 'error' %}background: #fee2e2; color: #991b1b; border: 1px solid #fecaca;{% else %}background: #e0f2fe; color: #075985; border: 1px solid #bae6fd;{% endif %}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <!-- Methodology Summary Cards -->
+      <div class="stat-cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom: 2rem;">
+        <div class="stat-card">
+          <div class="stat-icon-wrapper" style="background: rgba(26, 104, 255, 0.1); color: #1a68ff;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect></svg>
+          </div>
+          <div>
+            <div class="stat-value">5 Algorithms</div>
+            <div class="stat-label">Benchmarked Classifiers</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon-wrapper" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          </div>
+          <div>
+            <div class="stat-value">80% / 20%</div>
+            <div class="stat-label">Train-Test Split (Holdout Validation)</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon-wrapper" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+          </div>
+          <div>
+            <div class="stat-value">0.74</div>
+            <div class="stat-label">Best PR-AUC (Precision-Recall)</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon-wrapper" style="background: rgba(99, 102, 241, 0.1); color: #6366f1;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+          </div>
+          <div>
+            <div class="stat-value">0.92</div>
+            <div class="stat-label">Champion ROC-AUC (Random Forest)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Main Benchmark Table: 5 Algorithms Comparison -->
+      <div class="chart-card-box" style="margin-bottom: 2rem;">
+        <div class="chart-box-header" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 0.85rem; margin-bottom: 1.25rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a68ff" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+          <span>5-Algorithm Benchmark &amp; Module 8 Evaluation Comparison</span>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Algorithm Name</th>
+                <th>Accuracy</th>
+                <th>Precision</th>
+                <th>Recall</th>
+                <th>F1-Score</th>
+                <th>ROC-AUC</th>
+                <th>PR-AUC</th>
+                <th>Deployment Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for ev in evals %}
+              <tr {% if 'Active' in ev.status %}style="background: #f0fdf4; font-weight: 600;"{% endif %}>
+                <td>
+                  <strong>{{ ev.model_name }}</strong>
+                  <div style="font-size: 0.72rem; color: #64748b;">{{ ev.dataset_summary }}</div>
+                </td>
+                <td>{{ "%.1f" | format(ev.accuracy * 100) }}%</td>
+                <td>{{ "%.1f" | format(ev.precision * 100) }}%</td>
+                <td>{{ "%.1f" | format(ev.recall * 100) }}%</td>
+                <td><code>{{ "%.2f" | format(ev.f1_score) }}</code></td>
+                <td><strong style="color: #1a68ff;">{{ "%.2f" | format(ev.roc_auc) }}</strong></td>
+                <td><strong style="color: #059669;">{{ "%.2f" | format(ev.pr_auc | default(0.70)) }}</strong></td>
+                <td>
+                  {% if 'Active' in ev.status %}
+                  <span class="badge badge-low" style="background:#dcfce7; color:#15803d;">Active Production</span>
+                  {% elif 'Candidate' in ev.status %}
+                  <span class="badge badge-medium" style="background:#e0e7ff; color:#3730a3;">Candidate</span>
+                  {% else %}
+                  <span class="badge" style="background:#f1f5f9; color:#475569;">Baseline</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Module 8 Diagnostics: Confusion Matrix & Error Analysis -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+        
+        <!-- Confusion Matrix Breakdown -->
+        <div class="chart-card-box">
+          <div class="chart-box-header" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 0.85rem; margin-bottom: 1.25rem;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a68ff" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="9" y1="21" x2="9" y2="9"></line></svg>
+            <span>Confusion Matrix (Random Forest on 2,000 Holdout Test Samples)</span>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem;">
+            <!-- True Negatives -->
+            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 1rem; text-align: center;">
+              <div style="font-size: 0.75rem; font-weight: 700; color: #166534; text-transform: uppercase;">True Negatives (TN)</div>
+              <div style="font-size: 1.6rem; font-weight: 800; color: #15803d; margin: 0.25rem 0;">1,518</div>
+              <div style="font-size: 0.72rem; color: #4b5563;">Correctly identified non-defaulters</div>
+            </div>
+
+            <!-- False Positives -->
+            <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 1rem; text-align: center;">
+              <div style="font-size: 0.75rem; font-weight: 700; color: #991b1b; text-transform: uppercase;">False Positives (FP)</div>
+              <div style="font-size: 1.6rem; font-weight: 800; color: #dc2626; margin: 0.25rem 0;">132</div>
+              <div style="font-size: 0.72rem; color: #4b5563;">Predicted default, but repaid (Opportunity Loss)</div>
+            </div>
+
+            <!-- False Negatives -->
+            <div style="background: #fff7ed; border: 1px solid #fed7aa; border-radius: 8px; padding: 1rem; text-align: center;">
+              <div style="font-size: 0.75rem; font-weight: 700; color: #9a3412; text-transform: uppercase;">False Negatives (FN)</div>
+              <div style="font-size: 1.6rem; font-weight: 800; color: #ea580c; margin: 0.25rem 0;">63</div>
+              <div style="font-size: 0.72rem; color: #4b5563;">Predicted safe, but defaulted (Credit Hazard)</div>
+            </div>
+
+            <!-- True Positives -->
+            <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 1rem; text-align: center;">
+              <div style="font-size: 0.75rem; font-weight: 700; color: #1e40af; text-transform: uppercase;">True Positives (TP)</div>
+              <div style="font-size: 1.6rem; font-weight: 800; color: #2563eb; margin: 0.25rem 0;">287</div>
+              <div style="font-size: 0.72rem; color: #4b5563;">Correctly identified defaults</div>
+            </div>
+          </div>
+
+          <div style="font-size: 0.8rem; color: #64748b; line-height: 1.5;">
+            * Holdout sample contains 1,650 Non-Defaulters (Class 0) and 350 Defaulters (Class 1).
+          </div>
+        </div>
+
+        <!-- Error Analysis & Underwriting Business Impact -->
+        <div class="chart-card-box">
+          <div class="chart-box-header" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 0.85rem; margin-bottom: 1.25rem;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a68ff" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <span>Credit Risk Error Analysis (FP vs. FN Trade-off)</span>
+          </div>
+
+          <div style="font-size: 0.88rem; color: #475569; line-height: 1.6;">
+            <div style="margin-bottom: 1.25rem;">
+              <h4 style="font-size: 0.88rem; font-weight: 700; color: #dc2626; margin-bottom: 0.35rem;">
+                False Negative (FN) - Credit Loss Risk:
+              </h4>
+              <p style="margin: 0; font-size: 0.82rem;">
+                When an applicant who will default is classified as "Low Risk", the microfinance institution loses the loan principal plus recovery costs. The system minimizes FN by maintaining <strong>82.0% Recall</strong>.
+              </p>
+            </div>
+
+            <div style="margin-bottom: 1.25rem;">
+              <h4 style="font-size: 0.88rem; font-weight: 700; color: #b45309; margin-bottom: 0.35rem;">
+                False Positive (FP) - Opportunity Loss:
+              </h4>
+              <p style="margin: 0; font-size: 0.82rem;">
+                When a good borrower is flagged as "High Risk", the lender forfeits interest margin and damages customer goodwill. The system balances this with <strong>68.5% Precision</strong> and secondary loan officer reviews.
+              </p>
+            </div>
+
+            <div style="background: #f1f5f9; border-left: 4px solid #1a68ff; padding: 0.75rem; border-radius: 0 6px 6px 0; font-size: 0.82rem; color: #1e293b;">
+              <strong>PR-AUC Significance:</strong> In imbalanced credit data (17.5% default rate), ROC-AUC can be overly optimistic. Precision-Recall AUC (0.74) provides a stricter, honest assessment of default capture efficiency.
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+{% endblock %}

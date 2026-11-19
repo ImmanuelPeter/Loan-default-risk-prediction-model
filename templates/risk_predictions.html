@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% block title %}Risk Predictions | Loan Default Risk Prediction System{% endblock %}
+
+{% block content %}
+<div class="dashboard-viewport">
+  {% include 'header.html' %}
+
+  <div class="dashboard-body-container">
+    {% include 'sidebar.html' %}
+
+    <main class="dashboard-main-content">
+      <div class="workspace-header-row">
+        <div>
+          <h1 class="welcome-heading">Risk assessments</h1>
+          <p class="welcome-subtext">Review borrower default estimates, risk classifications, and lending decisions.</p>
+        </div>
+      </div>
+
+      <!-- Thresholds Banner -->
+      <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1rem 1.5rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <strong style="color: #0f172a;">Active Risk Classification Policy:</strong>
+          <span style="font-size: 0.85rem; color: #64748b; margin-left: 0.5rem;">Configured via Institutional Settings</span>
+        </div>
+        <div style="display: flex; gap: 1rem;">
+          <span class="res-tier-pill" style="background: #ecfdf5; color: #065f46;">Low Risk: &lt; {{ th_low }}%</span>
+          <span class="res-tier-pill" style="background: #fffbeb; color: #92400e;">Medium Risk: {{ th_low }}% &ndash; &lt; {{ th_med }}%</span>
+          <span class="res-tier-pill" style="background: #fef2f2; color: #991b1b;">High Risk: &ge; {{ th_med }}%</span>
+        </div>
+      </div>
+
+      <!-- Queue of Pending Applications ready for Assessment -->
+      {% if pending_apps %}
+      <div class="chart-card-box" style="margin-bottom: 2rem; border-left: 4px solid #1a68ff;">
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin-bottom: 0.75rem;">
+          ⚡ Pending Risk Assessments Queue ({{ pending_apps|length }})
+        </h3>
+        <p style="font-size: 0.85rem; color: #64748b; margin-bottom: 1.25rem;">
+          These loan applications are awaiting a default-risk assessment.
+        </p>
+
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>App ID</th>
+                <th>Borrower</th>
+                <th>Amount (MWK)</th>
+                <th>Term</th>
+                <th>Monthly Income</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for pa in pending_apps %}
+              <tr>
+                <td><strong>{{ pa.app_id }}</strong></td>
+                <td>{{ pa.applicant.full_name if pa.applicant else 'Borrower' }}</td>
+                <td>MWK {{ '{:,.0f}'.format(pa.loan_amount) }}</td>
+                <td>{{ pa.loan_term }} mos</td>
+                <td>MWK {{ '{:,.0f}'.format(pa.monthly_income) }}</td>
+                <td>
+                  <a href="{{ url_for('main.assess_application_risk', app_id=pa.id) }}?run=1" class="btn btn-hero-primary" style="padding: 0.35rem 0.85rem; font-size: 0.8rem;">
+                    {% if pa.latest_prediction %}Update Prediction{% else %}Run Prediction{% endif %} &rarr;
+                  </a>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      {% endif %}
+
+      <section class="chart-card-box risk-filter-card" aria-labelledby="risk-filter-title">
+        <div class="risk-filter-heading">
+          <div>
+            <h2 id="risk-filter-title">Find an assessment</h2>
+            <p>Search by borrower name, borrower ID, or application ID. Narrow results by risk category or assessment date. Filters only change the results shown; they do not change a prediction.</p>
+          </div>
+          <a href="{{ url_for('main.export_prediction_history') }}" class="btn btn-secondary">Export full history CSV</a>
+        </div>
+
+        <form method="GET" action="{{ url_for('main.risk_predictions') }}" class="risk-filter-form">
+          <div class="risk-filter-field risk-filter-search">
+            <label for="risk-search">Borrower or application</label>
+            <input id="risk-search" type="search" name="search" value="{{ search }}" placeholder="e.g. Blessings Gondwe or APP-1003">
+          </div>
+          <div class="risk-filter-field">
+            <label for="risk-category">Risk category</label>
+            <select id="risk-category" name="risk">
+              <option value="">All risk categories</option>
+              <option value="Low Risk" {% if risk_filter == 'Low Risk' %}selected{% endif %}>Low risk</option>
+              <option value="Medium Risk" {% if risk_filter == 'Medium Risk' %}selected{% endif %}>Medium risk</option>
+              <option value="High Risk" {% if risk_filter == 'High Risk' %}selected{% endif %}>High risk</option>
+            </select>
+          </div>
+          <div class="risk-filter-field">
+            <label for="risk-date-from">Assessment date from</label>
+            <input id="risk-date-from" type="date" name="date_from" value="{{ date_from }}">
+          </div>
+          <div class="risk-filter-field">
+            <label for="risk-date-to">Assessment date to</label>
+            <input id="risk-date-to" type="date" name="date_to" value="{{ date_to }}">
+          </div>
+          <div class="risk-filter-actions">
+            <button type="submit" class="btn btn-hero-primary">Apply filters</button>
+            {% if search or risk_filter or date_from or date_to %}
+            <a href="{{ url_for('main.risk_predictions') }}" class="btn btn-secondary">Clear filters</a>
+            {% endif %}
+          </div>
+        </form>
+
+        {% if search or risk_filter or date_from or date_to %}
+        <div class="risk-active-filters" role="status">
+          <strong>Active filters:</strong>
+          {% if search %}<span>Search: {{ search }}</span>{% endif %}
+          {% if risk_filter %}<span>{{ risk_filter }}</span>{% endif %}
+          {% if date_from %}<span>From {{ date_from }}</span>{% endif %}
+          {% if date_to %}<span>To {{ date_to }}</span>{% endif %}
+        </div>
+        {% endif %}
+      </section>
+
+      <section class="risk-analytics-grid" aria-label="Risk assessment graphs">
+        <article class="chart-card-box risk-analytics-card">
+          <div class="risk-analytics-heading">
+            <div>
+              <h2>Risk distribution</h2>
+              <p>Assessment categories in the current results</p>
+            </div>
+            <span>{{ predictions|length }} assessments</span>
+          </div>
+          <div class="risk-distribution-content">
+            <canvas
+              id="riskDonutCanvas"
+              width="200"
+              height="200"
+              data-low="{{ risk_counts['Low Risk'] }}"
+              data-medium="{{ risk_counts['Medium Risk'] }}"
+              data-high="{{ risk_counts['High Risk'] }}"
+              role="img"
+              aria-label="Risk distribution: {{ risk_counts['Low Risk'] }} low risk, {{ risk_counts['Medium Risk'] }} medium risk, and {{ risk_counts['High Risk'] }} high risk assessments">
+              Risk distribution chart
+            </canvas>
+            <div class="risk-distribution-legend">
+              <div><span class="risk-legend-dot low"></span><span>Low risk</span><strong>{{ risk_counts['Low Risk'] }}</strong></div>
+              <div><span class="risk-legend-dot medium"></span><span>Medium risk</span><strong>{{ risk_counts['Medium Risk'] }}</strong></div>
+              <div><span class="risk-legend-dot high"></span><span>High risk</span><strong>{{ risk_counts['High Risk'] }}</strong></div>
+            </div>
+          </div>
+        </article>
+
+        <article class="chart-card-box risk-analytics-card">
+          <div class="risk-analytics-heading">
+            <div>
+              <h2>Default probability trend</h2>
+              <p>Average model estimate by assessment date</p>
+            </div>
+            <span>Latest 7 days with assessments</span>
+          </div>
+          {% if trend_values %}
+          <div class="risk-trend-chart">
+            <canvas
+              id="trendLineCanvas"
+              data-labels='{{ trend_labels|tojson }}'
+              data-values='{{ trend_values|tojson }}'
+              data-unit="%"
+              role="img"
+              aria-label="Average default probability by date: {% for label in trend_labels %}{{ label }} {{ trend_values[loop.index0] }} percent{% if not loop.last %}, {% endif %}{% endfor %}">
+              Average default probability trend chart
+            </canvas>
+          </div>
+          {% else %}
+          <div class="risk-chart-empty">No dated assessments are available for this trend yet.</div>
+          {% endif %}
+        </article>
+      </section>
+
+      <!-- Assessment History & Results Directory -->
+      <div class="chart-card-box">
+        <h3 style="font-size: 1.15rem; font-weight: 700; color: #0f172a; margin-bottom: 1.25rem;">
+          Matching risk assessments ({{ predictions|length }})
+        </h3>
+
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Application ID</th>
+                <th>Applicant</th>
+                <th>Default Probability</th>
+                <th>Risk Category</th>
+                <th>Assessment Date</th>
+                <th>Final Decision</th>
+                <th>Report</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in predictions %}
+              {% set app = p.loan_application %}
+              <tr>
+                <td><strong style="color: #1a68ff;">{{ app.app_id }}</strong></td>
+                <td><strong>{{ app.applicant.full_name if app.applicant else 'Borrower' }}</strong></td>
+                <td>
+                  <strong style="font-size: 1.05rem;">{{ p.default_probability }}%</strong>
+                </td>
+                <td>
+                  <span class="badge {% if p.risk_category == 'Low Risk' %}badge-low{% elif p.risk_category == 'Medium Risk' %}badge-moderate{% else %}badge-high{% endif %}">
+                    {{ p.risk_category }}
+                  </span>
+                </td>
+                <td>{{ p.assessment_date.strftime('%d %b %Y, %H:%M') }}</td>
+                <td>
+                  {% if app.decision %}
+                    <span class="res-tier-pill" style="{% if app.decision.decision == 'Approved' %}background: #ecfdf5; color: #065f46;{% else %}background: #fef2f2; color: #991b1b;{% endif %}">
+                      {{ app.decision.decision }}
+                    </span>
+                  {% else %}
+                    <span style="color: #94a3b8; font-size: 0.85rem;">Pending Decision</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <a href="{{ url_for('main.assess_application_risk', app_id=app.id) }}" class="btn btn-landing-login" style="padding: 0.35rem 0.8rem; font-size: 0.8rem;">
+                    View Report &rarr;
+                  </a>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="7" style="text-align: center; padding: 2rem; color: #64748b;">
+                  No risk evaluations generated yet.
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+{% endblock %}

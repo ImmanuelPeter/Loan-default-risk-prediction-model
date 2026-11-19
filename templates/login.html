@@ -1,0 +1,197 @@
+{% extends "base.html" %}
+
+{% block title %}Log in | Loan Default Risk Prediction Model{% endblock %}
+{% block body_class %}login-page{% endblock %}
+
+{% block extra_head %}
+<style>
+  .login-page {
+    min-height: 100vh;
+    color: #142238;
+    background:
+      linear-gradient(rgba(7, 16, 29, 0.48), rgba(7, 16, 29, 0.62)),
+      url("{{ url_for('static', filename='images/login-background.png') }}") center / cover no-repeat fixed;
+  }
+  .login-screen {
+    display: grid;
+    min-height: 100vh;
+    place-items: center;
+    padding: 2rem 1rem;
+  }
+  .login-card {
+    width: min(100%, 390px);
+    padding: 2rem 2.15rem 1.65rem;
+    border: 1px solid rgba(255,255,255,0.68);
+    border-radius: 15px;
+    background: rgba(255, 250, 240, 0.72);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.28);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+  .login-heading {
+    margin: 0 0 0.45rem;
+    color: #17243a;
+    font-size: 1.8rem;
+    font-weight: 750;
+    letter-spacing: -0.035em;
+    text-align: center;
+  }
+  .login-intro {
+    margin: 0 0 1.35rem;
+    color: #526176;
+    font-size: 0.82rem;
+    line-height: 1.55;
+    text-align: center;
+  }
+  .login-fields {
+    display: grid;
+    gap: 0.85rem;
+  }
+  .login-field-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    clip-path: inset(50%);
+  }
+  .login-input {
+    width: 100%;
+    min-height: 46px;
+    padding: 0.7rem 1rem;
+    border: 1px solid rgba(89,105,126,0.28);
+    border-radius: 24px;
+    outline: none;
+    background: rgba(255,255,255,0.58);
+    color: #17243a;
+    font: inherit;
+    font-size: 0.9rem;
+    transition: border-color 150ms ease, background 150ms ease, box-shadow 150ms ease;
+  }
+  .login-input::placeholder { color: #657187; }
+  .login-input:focus {
+    border-color: #6b9de0;
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 0 0 3px rgba(23,104,216,0.15);
+  }
+  .login-options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.7rem;
+    margin: 1rem 0;
+    color: #46556c;
+    font-size: 0.78rem;
+  }
+  .login-remember {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    cursor: pointer;
+  }
+  .login-remember input {
+    width: 15px;
+    height: 15px;
+    margin: 0;
+    accent-color: #1768d8;
+  }
+  .login-submit {
+    width: 100%;
+    min-height: 45px;
+    border: 0;
+    border-radius: 24px;
+    background: #fffdf8;
+    color: #152238;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 750;
+    cursor: pointer;
+    transition: background 150ms ease, transform 150ms ease;
+  }
+  .login-submit:hover {
+    transform: translateY(-1px);
+    background: #f1e8d8;
+  }
+  .login-message {
+    margin-bottom: 1rem;
+    padding: 0.7rem 0.8rem;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 9px;
+    background: rgba(15,23,42,0.54);
+    color: #fff;
+    font-size: 0.8rem;
+    line-height: 1.45;
+  }
+  .login-message-danger, .login-message-warning {
+    border-color: rgba(254,202,202,0.55);
+    background: rgba(127,29,29,0.55);
+  }
+  .login-register {
+    margin: 1.1rem 0 0;
+    color: #526176;
+    font-size: 0.8rem;
+    text-align: center;
+  }
+  .login-register a, .login-home-link {
+    color: #1554a4;
+    font-weight: 750;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .login-home {
+    margin: 1rem 0 0;
+    text-align: center;
+  }
+  .login-home-link {
+    color: #526176;
+    font-size: 0.75rem;
+  }
+  @media (max-width: 480px) {
+    .login-screen { padding: 1rem; }
+    .login-card { padding: 1.65rem 1.25rem 1.35rem; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .login-input, .login-submit { transition: none; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="login-screen">
+  <section class="login-card shadow-lg" aria-labelledby="login-heading">
+    <h1 class="login-heading" id="login-heading">Welcome back</h1>
+    <p class="login-intro">Sign in with your organization administrator or staff account.</p>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <div class="login-message login-message-{{ category }} alert" role="alert">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('auth.login') }}">
+      <div class="login-fields">
+        <label class="login-field-label" for="email">Email address</label>
+        <input class="login-input form-control" type="email" id="email" name="email" value="{{ email or '' }}" autocomplete="username" placeholder="Email address" required>
+
+        <label class="login-field-label" for="password">Password</label>
+        <input class="login-input form-control" type="password" id="password" name="password" autocomplete="current-password" placeholder="Password" required>
+      </div>
+
+      <div class="login-options">
+        <label class="login-remember">
+          <input type="checkbox" name="remember" checked>
+          <span>Remember me</span>
+        </label>
+      </div>
+
+      <button class="login-submit btn" type="submit">Log in</button>
+    </form>
+
+    <p class="login-register">Don't have an account? <a href="{{ url_for('main.register_organization') }}">Create account</a></p>
+    <p class="login-home"><a class="login-home-link" href="{{ url_for('main.index') }}">Back to home</a></p>
+  </section>
+</main>
+{% endblock %}

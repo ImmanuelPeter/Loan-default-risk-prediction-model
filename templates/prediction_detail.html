@@ -1,0 +1,356 @@
+{% extends "base.html" %}
+
+{% block title %}Risk Assessment | {{ application.app_id }}{% endblock %}
+
+{% block content %}
+<div class="dashboard-viewport">
+  {% include 'header.html' %}
+
+  <div class="dashboard-body-container">
+    {% include 'sidebar.html' %}
+
+    <main class="dashboard-main-content">
+      <div class="workspace-header-row">
+        <div>
+          <div style="font-size: 0.85rem; font-weight: 700; color: #1a68ff; text-transform: uppercase;">
+            Application Risk Assessment
+          </div>
+          <h1 class="welcome-heading">{{ application.app_id }} &mdash; {{ application.applicant.full_name if application.applicant else 'Applicant' }}</h1>
+          <p class="welcome-subtext">Borrower Credit Risk Assessment &amp; Decision Underwriting Portal</p>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem;">
+          <a href="{{ url_for('main.risk_predictions') }}" class="btn btn-secondary">&larr; Back to Predictions</a>
+          <a href="{{ url_for('main.loan_applications') }}" class="btn btn-secondary">Applications List</a>
+        </div>
+      </div>
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, msg in messages %}
+            <div class="decision-flash {{ category }}" role="status" aria-live="polite">
+              <span class="decision-flash-icon" aria-hidden="true">{% if category == 'success' %}&#10003;{% elif category == 'danger' %}!{% else %}i{% endif %}</span>
+              {{ msg }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      {% set pred = application.latest_prediction %}
+
+      {% if pred %}
+      {% set default_probability = [[pred.default_probability|float, 0]|max, 100]|min %}
+      <!-- Prediction Detail Hero Card (Section 3 Example) -->
+      <div class="result-card {% if pred.risk_category == 'Low Risk' %}low{% elif pred.risk_category == 'Medium Risk' %}moderate{% else %}high{% endif %}" style="margin-bottom: 2rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(0,0,0,0.08); padding-bottom: 1rem;">
+          <div>
+            <h3 style="font-size: 1.5rem; font-weight: 800; color: #0f172a;">
+              Prediction Result: {{ pred.risk_category }}
+            </h3>
+            <p style="color: #475569; font-size: 0.95rem; margin-top: 0.25rem;">
+              Estimated probability of default: <strong>{{ '{:.1f}'.format(pred.default_probability) }}%</strong>
+            </p>
+          </div>
+          <span class="badge {% if pred.risk_category == 'Low Risk' %}badge-low{% elif pred.risk_category == 'Medium Risk' %}badge-moderate{% else %}badge-high{% endif %}" style="font-size: 0.95rem; padding: 0.5rem 1rem;">
+            {{ pred.risk_category }}
+          </span>
+        </div>
+
+        <div class="result-grid">
+          <!-- Prediction Parameters Table -->
+          <div style="background: #ffffff; border-radius: 12px; padding: 1.25rem; border: 1px solid #e2e8f0;">
+            <h4 style="font-size: 0.95rem; font-weight: 700; color: #0f172a; margin-bottom: 0.75rem;">Prediction Details</h4>
+            <table class="table" style="font-size: 0.88rem;">
+              <tbody>
+                <tr>
+                  <td style="color: #64748b; width: 45%;">Application ID</td>
+                  <td><strong>{{ application.app_id }}</strong></td>
+                </tr>
+                <tr>
+                  <td style="color: #64748b;">Applicant</td>
+                  <td><strong>{{ application.applicant.full_name if application.applicant else 'Applicant details unavailable' }}</strong>{% if application.applicant %} ({{ application.applicant.applicant_id }}){% endif %}</td>
+                </tr>
+                <tr>
+                  <td style="color: #64748b;">Default Probability</td>
+                  <td><strong style="font-size: 1.15rem; color: {% if pred.risk_category == 'Low Risk' %}#059669{% elif pred.risk_category == 'Medium Risk' %}#d97706{% else %}#dc2626{% endif %};">{{ '{:.1f}'.format(pred.default_probability) }}%</strong></td>
+                </tr>
+                <tr>
+                  <td style="color: #64748b;">Risk Category</td>
+                  <td><strong>{{ pred.risk_category }}</strong></td>
+                </tr>
+                <tr>
+                  <td style="color: #64748b;">Assessment Date</td>
+                  <td>{{ pred.assessment_date.strftime('%d %B %Y, %H:%M') }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="risk-chart-card">
+            <h4>Default probability</h4>
+            <p>Model estimate for this application</p>
+            <div class="risk-chart-content">
+              <div
+                class="risk-donut {% if pred.risk_category == 'Low Risk' %}low{% elif pred.risk_category == 'Medium Risk' %}moderate{% else %}high{% endif %}"
+                role="img"
+                aria-label="Estimated default probability {{ '{:.1f}'.format(pred.default_probability) }} percent; estimated non-default probability {{ '{:.1f}'.format(100 - pred.default_probability) }} percent"
+                style="--risk-probability: {{ default_probability }}%;">
+                <span><strong>{{ '{:.1f}'.format(pred.default_probability) }}%</strong><small>default risk</small></span>
+              </div>
+              <div class="risk-chart-legend">
+                <div><span class="risk-legend-dot default {% if pred.risk_category == 'Low Risk' %}low{% elif pred.risk_category == 'Medium Risk' %}moderate{% endif %}"></span><span>Estimated default</span><strong>{{ '{:.1f}'.format(pred.default_probability) }}%</strong></div>
+                <div><span class="risk-legend-dot non-default"></span><span>Estimated non-default</span><strong>{{ '{:.1f}'.format(100 - pred.default_probability) }}%</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Applicant Financial Profile & Decision Workspace -->
+      <div class="underwriting-grid">
+        <!-- Left: Applicant KYC & Financial Profile -->
+        <div class="chart-card-box">
+          <h3 style="font-size: 1.1rem; font-weight: 700; color: #0f172a; margin-bottom: 1rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem;">
+            Borrower Financial Summary
+          </h3>
+
+          {% set income = application.monthly_income|float %}
+          {% set debt = application.existing_monthly_debt|float %}
+          {% set debt_share = (debt / income * 100) if income > 0 else 0 %}
+          {% set balance_share = [100 - debt_share, 0]|max %}
+          <div class="financial-summary-metrics">
+            <div class="financial-summary-metric">
+              <span>Monthly income</span>
+              <strong>MWK {{ '{:,.0f}'.format(income) }}</strong>
+            </div>
+            <div class="financial-summary-metric">
+              <span>Existing monthly debt</span>
+              <strong>MWK {{ '{:,.0f}'.format(debt) }}</strong>
+            </div>
+            <div class="financial-summary-metric">
+              <span>Income after existing debt</span>
+              <strong>MWK {{ '{:,.0f}'.format([income - debt, 0]|max) }}</strong>
+            </div>
+          </div>
+
+          <section class="financial-bars" aria-label="Monthly income and debt comparison">
+            <div class="financial-bar-row">
+              <div><span>Monthly income</span><strong>100%</strong></div>
+              <div class="financial-bar-track"><span class="financial-bar income" style="width: 100%;"></span></div>
+            </div>
+            <div class="financial-bar-row">
+              <div><span>Existing debt</span><strong>{{ '{:.1f}'.format(debt_share) }}%</strong></div>
+              <div class="financial-bar-track"><span class="financial-bar debt" style="width: {{ [debt_share, 100]|min }}%;"></span></div>
+            </div>
+            <div class="financial-bar-row">
+              <div><span>Income after debt</span><strong>{{ '{:.1f}'.format(balance_share) }}%</strong></div>
+              <div class="financial-bar-track"><span class="financial-bar balance" style="width: {{ balance_share }}%;"></span></div>
+            </div>
+            {% if income <= 0 %}
+            <p class="financial-chart-note">Monthly income is unavailable, so debt-to-income percentages cannot be calculated.</p>
+            {% endif %}
+          </section>
+
+          <section class="credit-history-summary" aria-label="Prior credit history">
+            <div class="credit-history-summary-header">
+              <strong>Prior credit history</strong>
+              <span class="credit-history-status">{{ application.credit_history_status }}</span>
+            </div>
+            {% if application.credit_history_status == 'History available' %}
+            <dl class="credit-history-metrics">
+              <div><dt>Previous loans</dt><dd>{{ application.prior_loan_count if application.prior_loan_count is not none else 'Not recorded' }}</dd></div>
+              <div><dt>Loans repaid in full</dt><dd>{{ application.prior_loans_repaid if application.prior_loans_repaid is not none else 'Not recorded' }}</dd></div>
+              <div><dt>Late/missed payments (12 months)</dt><dd>{{ application.late_payments_12m if application.late_payments_12m is not none else 'Not recorded' }}</dd></div>
+              <div><dt>Longest delay (12 months)</dt><dd>{% if application.max_days_past_due_12m is not none %}{{ application.max_days_past_due_12m }} days{% else %}Not recorded{% endif %}</dd></div>
+              <div><dt>Previous default</dt><dd>{% if application.previous_default is sameas true %}Yes{% elif application.previous_default is sameas false %}No{% else %}Unknown{% endif %}</dd></div>
+            </dl>
+            {% elif application.credit_history_status == 'No prior loans' %}
+            <p>No previous borrowing was reported for this application.</p>
+            {% else %}
+            <p>Credit history has not been checked for this application.</p>
+            {% endif %}
+            {% if application.applicant and application.applicant.credit_history %}
+            <p><strong>Borrower notes:</strong> {{ application.applicant.credit_history }}</p>
+            {% endif %}
+            <small>Recorded for underwriting review; these details do not currently affect the model prediction.</small>
+          </section>
+
+          <table class="table financial-details-table" style="font-size: 0.88rem;">
+            <tbody>
+              <tr>
+                <td style="color: #64748b;">Requested Loan Amount</td>
+                <td><strong>MWK {{ '{:,.0f}'.format(application.loan_amount) }}</strong></td>
+              </tr>
+              <tr>
+                <td style="color: #64748b;">Loan Purpose</td>
+                <td><strong>{{ application.loan_purpose }}</strong></td>
+              </tr>
+              <tr>
+                <td style="color: #64748b;">Loan Term</td>
+                <td>{{ application.loan_term }} Months</td>
+              </tr>
+              <tr>
+                <td style="color: #64748b;">Employment Status &amp; Duration</td>
+                <td>{{ application.applicant.employment_status if application.applicant else 'N/A' }} ({{ application.applicant.employment_duration if application.applicant else 0 }} yrs)</td>
+              </tr>
+              <tr>
+                <td style="color: #64748b;">Residential Location</td>
+                <td>{{ application.applicant.residential_area if application.applicant else 'N/A' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Right: Loan Officer Review & Decision Action -->
+        <div class="chart-card-box">
+          <h3 style="font-size: 1.1rem; font-weight: 700; color: #0f172a; margin-bottom: 1rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem;">
+            Record Underwriting Decision
+          </h3>
+
+          <section class="underwriting-applicant">
+            <div>
+              <span class="underwriting-eyebrow">Loan applicant</span>
+              <strong>{{ application.applicant.full_name if application.applicant else 'Applicant details unavailable' }}</strong>
+              <span>{{ application.applicant.applicant_id if application.applicant else application.app_id }} &middot; {{ application.app_id }}</span>
+            </div>
+            {% if application.applicant %}
+            <div class="underwriting-applicant-details">
+              <span>{{ application.applicant.employment_status }}</span>
+              <span>{{ application.applicant.phone_number }}</span>
+            </div>
+            {% endif %}
+          </section>
+
+          {% if pred %}
+          <section class="underwriting-prediction {% if pred.risk_category == 'Low Risk' %}low{% elif pred.risk_category == 'Medium Risk' %}moderate{% else %}high{% endif %}">
+            <div>
+              <span class="underwriting-eyebrow">Latest model estimate</span>
+              <strong>{{ '{:.1f}'.format(pred.default_probability) }}% default probability</strong>
+              <span>{{ pred.risk_category }} &middot; {{ '{:.1f}'.format(100 - pred.default_probability) }}% estimated non-default</span>
+            </div>
+            <form method="POST" action="{{ url_for('main.assess_application_risk', app_id=application.id) }}">
+              <button type="submit" class="btn btn-secondary">Update Prediction</button>
+            </form>
+          </section>
+          {% else %}
+          <section class="underwriting-prediction pending">
+            <div>
+              <span class="underwriting-eyebrow">Prediction needed</span>
+              <strong>No risk estimate yet</strong>
+              <span>Run an assessment here to review the model estimate for this applicant.</span>
+            </div>
+            <form method="POST" action="{{ url_for('main.assess_application_risk', app_id=application.id) }}">
+              <button type="submit" class="btn btn-hero-primary">Run Prediction</button>
+            </form>
+          </section>
+          {% endif %}
+
+          {% if application.decision %}
+          <section class="decision-summary {% if application.decision.decision == 'Approved' %}approved{% elif application.decision.decision == 'Declined' %}declined{% else %}review{% endif %}" aria-label="Saved underwriting decision">
+            <div class="decision-summary-header">
+              <div>
+                <span class="underwriting-eyebrow">Decision saved</span>
+                <strong class="decision-summary-title">{{ application.decision.decision }}</strong>
+              </div>
+              <span class="badge {% if application.decision.decision == 'Approved' %}badge-low{% elif application.decision.decision == 'Declined' %}badge-high{% else %}badge-moderate{% endif %}">
+                {{ application.decision.decision }}
+              </span>
+            </div>
+            <p class="decision-summary-notes">
+              <strong>Underwriting notes:</strong> {{ application.decision.notes or 'No notes were added to this decision.' }}
+            </p>
+            <div class="decision-summary-footer">
+              <span>Application status: <strong>{{ application.status }}</strong></span>
+              <time datetime="{{ application.decision.decided_at.isoformat() }}">Saved {{ application.decision.decided_at.strftime('%d %b %Y, %H:%M') }}</time>
+            </div>
+          </section>
+          {% endif %}
+
+          {% if application.decision and application.decision.decision == 'Approved' %}
+          <section class="decision-summary review" aria-label="WhatsApp approval notification" style="margin-top: 1rem;">
+            <strong>WhatsApp approval notification: {{ application.whatsapp_approval_status }}</strong>
+            {% if application.whatsapp_approval_status == 'Sent' and application.whatsapp_approval_sent_at %}
+            <p class="decision-summary-notes">Sent {{ application.whatsapp_approval_sent_at.strftime('%d %b %Y, %H:%M') }}.</p>
+            {% elif application.whatsapp_approval_error %}
+            <p class="decision-summary-notes">{{ application.whatsapp_approval_error }}</p>
+            {% endif %}
+            {% if application.whatsapp_approval_status != 'Sent' %}
+              {% if application.applicant.whatsapp_opt_in %}
+              <form method="POST" action="{{ url_for('main.retry_whatsapp_approval', app_id=application.id) }}" style="margin-top: .75rem;">
+                {% if whatsapp_templates %}
+                <label for="whatsappRetryTemplate">Approved message template</label>
+                <select id="whatsappRetryTemplate" name="whatsapp_template" data-whatsapp-template-select data-preview-target="whatsappRetryPreview" style="width: 100%; margin: .4rem 0; padding: .65rem; border: 1px solid #cbd5e1; border-radius: 8px;">
+                  {% for template in whatsapp_templates %}
+                  <option value="{{ template.name }}" data-preview="{{ template.preview }}" {% if template.name == selected_whatsapp_template %}selected{% endif %}>{{ template.label }}</option>
+                  {% endfor %}
+                </select>
+                <p id="whatsappRetryPreview" class="decision-summary-notes" aria-live="polite"></p>
+                <button type="submit" class="btn btn-secondary">Send / retry WhatsApp notice</button>
+                {% else %}
+                <p class="decision-summary-notes">{{ whatsapp_template_error or 'No approved WhatsApp message is configured.' }}</p>
+                {% endif %}
+              </form>
+              {% else %}
+              <p class="decision-summary-notes">The borrower has not opted in. Update the borrower profile after consent is obtained before sending.</p>
+              {% endif %}
+            {% endif %}
+          </section>
+          {% endif %}
+
+          <form method="POST" action="{{ url_for('main.record_decision', app_id=application.id) }}">
+            {% if application.decision %}
+            <p class="decision-edit-hint">This decision is saved. Change the selection or notes below to update the record.</p>
+            {% endif %}
+            <div style="margin-bottom: 1.2rem;">
+              <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 0.4rem;">Lending Decision *</label>
+              <select name="decision" required style="width: 100%; padding: 0.7rem 0.9rem; border: 1.5px solid #cbd5e1; border-radius: 8px; outline: none; background: #fff;">
+                <option value="Approved" {% if application.decision and application.decision.decision == 'Approved' %}selected{% endif %}>Approve Loan</option>
+                <option value="Conditional Approval" {% if application.decision and application.decision.decision == 'Conditional Approval' %}selected{% endif %}>Conditional Approval (Guarantor / Collateral)</option>
+                <option value="Under Review" {% if application.decision and application.decision.decision == 'Under Review' %}selected{% endif %}>Refer for Higher Management Review</option>
+                <option value="Declined" {% if application.decision and application.decision.decision == 'Declined' %}selected{% endif %}>Decline Application</option>
+              </select>
+            </div>
+
+            <div style="margin-bottom: 1.2rem;">
+              <label for="whatsappDecisionTemplate" style="display: block; font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 0.4rem;">WhatsApp approval message</label>
+              {% if whatsapp_templates %}
+              <select id="whatsappDecisionTemplate" name="whatsapp_template" data-whatsapp-template-select data-preview-target="whatsappDecisionPreview" style="width: 100%; padding: 0.7rem 0.9rem; border: 1.5px solid #cbd5e1; border-radius: 8px; background: #fff;">
+                {% for template in whatsapp_templates %}
+                <option value="{{ template.name }}" data-preview="{{ template.preview }}" {% if template.name == selected_whatsapp_template %}selected{% endif %}>{{ template.label }}</option>
+                {% endfor %}
+              </select>
+              <p id="whatsappDecisionPreview" class="decision-summary-notes" aria-live="polite" style="margin-top: .5rem;"></p>
+              <small style="display: block; color: #64748b;">The selected Meta-approved message is populated with this application’s loan details.</small>
+              {% else %}
+              <p class="decision-summary-notes">{{ whatsapp_template_error or 'No approved WhatsApp message is configured.' }}</p>
+              {% endif %}
+            </div>
+
+            <div style="margin-bottom: 1.2rem;">
+              <label style="display: block; font-size: 0.85rem; font-weight: 700; color: #475569; margin-bottom: 0.4rem;">Assessment Notes &amp; Rationale</label>
+              <textarea name="notes" rows="3" placeholder="Provide underwriting justification considering applicant DTI, collateral, and predictive default probability..." style="width: 100%; padding: 0.7rem 0.9rem; border: 1.5px solid #cbd5e1; border-radius: 8px; outline: none;">{{ application.decision.notes if application.decision else '' }}</textarea>
+            </div>
+
+            <button type="submit" class="btn btn-landing-register" style="width: 100%; padding: 0.75rem;">
+              {% if application.decision %}Update Lending Decision{% else %}Save Lending Decision{% endif %}
+            </button>
+          </form>
+        </div>
+      </div>
+      <script>
+        document.querySelectorAll('[data-whatsapp-template-select]').forEach((select) => {
+          const preview = document.getElementById(select.dataset.previewTarget);
+          const updatePreview = () => {
+            const option = select.options[select.selectedIndex];
+            if (preview && option) preview.textContent = option.dataset.preview || '';
+          };
+          select.addEventListener('change', updatePreview);
+          updatePreview();
+        });
+      </script>
+    </main>
+  </div>
+</div>
+{% endblock %}

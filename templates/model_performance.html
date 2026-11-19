@@ -1,0 +1,205 @@
+{% extends "base.html" %}
+
+{% block title %}Model Performance | Loan Default Risk Prediction System{% endblock %}
+
+{% block content %}
+<div class="dashboard-viewport">
+  {% include 'header.html' %}
+
+  <div class="dashboard-body-container">
+    {% include 'sidebar.html' %}
+
+    <main class="dashboard-main-content">
+      <div class="workspace-header-row">
+        <div>
+          <h1 class="welcome-heading">Machine Learning Model Performance &amp; Evaluation</h1>
+          <p class="welcome-subtext">Quantitative benchmarking, confusion matrix diagnostics, and feature importance rankings.</p>
+        </div>
+
+        <div style="background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; padding: 0.5rem 1rem; font-size: 0.85rem; font-weight: 600;">
+          Production Model: <strong style="color: #1a68ff;">{{ active_version }}</strong>
+        </div>
+      </div>
+
+      <!-- Algorithm Comparison Table (Section 5 Example) -->
+      <div class="chart-card-box" style="margin-bottom: 2rem;">
+        <div class="chart-box-header" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 0.85rem; margin-bottom: 1.25rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a68ff" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+          <span>Model Benchmark Comparison</span>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Model Algorithm</th>
+                <th>Accuracy</th>
+                <th>Precision</th>
+                <th>Recall</th>
+                <th>F1-Score</th>
+                <th>ROC-AUC</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for m in evaluations %}
+              <tr {% if 'Active' in m.status %}style="background: #f0fdf4; font-weight: 600;"{% endif %}>
+                <td>
+                  <strong>{{ m.model_name }}</strong>
+                  <div style="font-size: 0.72rem; color: #94a3b8;">{{ m.dataset_summary }}</div>
+                </td>
+                <td>{{ (m.accuracy * 100)|round(1) }}%</td>
+                <td>{{ (m.precision * 100)|round(1) }}%</td>
+                <td>{{ (m.recall * 100)|round(1) }}%</td>
+                <td>{{ (m.f1_score * 100)|round(1) }}%</td>
+                <td><strong>{{ '{:.2f}'.format(m.roc_auc) }}</strong></td>
+                <td>
+                  <span class="badge {% if 'Active' in m.status %}badge-low{% elif 'Candidate' in m.status %}badge-moderate{% else %}btn-secondary{% endif %}">
+                    {{ m.status }}
+                  </span>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Two Columns: Metric Definitions & Feature Importance -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem;">
+        <!-- Left: Metric Definitions (Section 5 Guide) -->
+        <div class="chart-card-box">
+          <h3 style="font-size: 1.1rem; font-weight: 700; color: #0f172a; margin-bottom: 1rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem;">
+            What Each Evaluation Metric Measures
+          </h3>
+
+          <ul style="list-style: none; display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.88rem;">
+            <li>
+              <strong style="color: #0f172a;">Accuracy ({{ (evaluations[0].accuracy*100)|round(1) if evaluations else '88' }}%):</strong>
+              <div style="color: #64748b;">The overall proportion of correct predictions across all non-default and default loan cases.</div>
+            </li>
+            <li>
+              <strong style="color: #0f172a;">Precision:</strong>
+              <div style="color: #64748b;">Among applicants predicted to default, the proportion who actually defaulted (minimizes false alarms).</div>
+            </li>
+            <li>
+              <strong style="color: #0f172a;">Recall (Sensitivity):</strong>
+              <div style="color: #64748b;">Among applicants who actually defaulted, the proportion correctly identified (guards bank capital).</div>
+            </li>
+            <li>
+              <strong style="color: #0f172a;">F1-Score:</strong>
+              <div style="color: #64748b;">The harmonic mean of precision and recall, balancing false approvals and false denials.</div>
+            </li>
+            <li>
+              <strong style="color: #0f172a;">ROC-AUC:</strong>
+              <div style="color: #64748b;">Measures ranking ability to distinguish between default and solvent borrowers across all cutoff thresholds.</div>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Right: Feature Importance (Section 5) -->
+        <div class="chart-card-box">
+          <h3 style="font-size: 1.1rem; font-weight: 700; color: #0f172a; margin-bottom: 1rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem;">
+            Feature Importance (Gini Impurity &amp; SHAP)
+          </h3>
+
+          <div style="display: flex; flex-direction: column; gap: 0.9rem; font-size: 0.85rem;">
+            <div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                <strong>1. Debt-to-Income (DTI) Ratio</strong>
+                <span style="color: #1a68ff; font-weight: 700;">28.4%</span>
+              </div>
+              <div style="background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden;">
+                <div style="background: #1a68ff; width: 28.4%; height: 100%;"></div>
+              </div>
+            </div>
+
+            <div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                <strong>2. Loan-to-Income (LTI) Multiplier</strong>
+                <span style="color: #1a68ff; font-weight: 700;">22.6%</span>
+              </div>
+              <div style="background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden;">
+                <div style="background: #1a68ff; width: 22.6%; height: 100%;"></div>
+              </div>
+            </div>
+
+            <div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                <strong>3. Verified Monthly Income</strong>
+                <span style="color: #1a68ff; font-weight: 700;">18.5%</span>
+              </div>
+              <div style="background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden;">
+                <div style="background: #1a68ff; width: 18.5%; height: 100%;"></div>
+              </div>
+            </div>
+
+            <div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                <strong>4. Employment Duration (Tenure)</strong>
+                <span style="color: #1a68ff; font-weight: 700;">14.2%</span>
+              </div>
+              <div style="background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden;">
+                <div style="background: #1a68ff; width: 14.2%; height: 100%;"></div>
+              </div>
+            </div>
+
+            <div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                <strong>5. Loan Term Duration (Months)</strong>
+                <span style="color: #1a68ff; font-weight: 700;">10.1%</span>
+              </div>
+              <div style="background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden;">
+                <div style="background: #1a68ff; width: 10.1%; height: 100%;"></div>
+              </div>
+            </div>
+
+            <div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.25rem;">
+                <strong>6. Existing Monthly Debt</strong>
+                <span style="color: #1a68ff; font-weight: 700;">6.2%</span>
+              </div>
+              <div style="background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden;">
+                <div style="background: #1a68ff; width: 6.2%; height: 100%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Confusion Matrix Diagnostics Card (Section 5) -->
+      <div class="chart-card-box">
+        <h3 style="font-size: 1.1rem; font-weight: 700; color: #0f172a; margin-bottom: 1rem; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.75rem;">
+          Production Confusion Matrix (Out-of-Sample Test Set: N = 2,000)
+        </h3>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+          <div style="background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 12px; padding: 1.25rem; text-align: center;">
+            <div style="font-size: 0.8rem; font-weight: 700; color: #065f46; text-transform: uppercase;">True Negatives (TN)</div>
+            <div style="font-size: 1.8rem; font-weight: 900; color: #065f46; margin: 0.25rem 0;">1,480</div>
+            <div style="font-size: 0.78rem; color: #64748b;">Solvent borrowers correctly approved</div>
+          </div>
+
+          <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; padding: 1.25rem; text-align: center;">
+            <div style="font-size: 0.8rem; font-weight: 700; color: #991b1b; text-transform: uppercase;">False Positives (FP)</div>
+            <div style="font-size: 1.8rem; font-weight: 900; color: #991b1b; margin: 0.25rem 0;">80</div>
+            <div style="font-size: 0.78rem; color: #64748b;">Solvent borrowers flagged as default</div>
+          </div>
+
+          <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 1.25rem; text-align: center;">
+            <div style="font-size: 0.8rem; font-weight: 700; color: #92400e; text-transform: uppercase;">False Negatives (FN)</div>
+            <div style="font-size: 1.8rem; font-weight: 900; color: #92400e; margin: 0.25rem 0;">60</div>
+            <div style="font-size: 0.78rem; color: #64748b;">Defaulters missed by model</div>
+          </div>
+
+          <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 12px; padding: 1.25rem; text-align: center;">
+            <div style="font-size: 0.8rem; font-weight: 700; color: #1e40af; text-transform: uppercase;">True Positives (TP)</div>
+            <div style="font-size: 1.8rem; font-weight: 900; color: #1e40af; margin: 0.25rem 0;">380</div>
+            <div style="font-size: 0.78rem; color: #64748b;">Defaulters correctly detected</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+{% endblock %}

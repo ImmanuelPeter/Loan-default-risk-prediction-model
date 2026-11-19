@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+
+{% block title %}Sign Up | Loan Default Risk Prediction System{% endblock %}
+
+{% block content %}
+<!-- Simple Top Header -->
+<nav class="landing-navbar" style="border-bottom: 1px solid #e2e8f0;">
+  <a href="{{ url_for('main.index') }}" class="brand-container">
+    <svg width="32" height="32" viewBox="0 0 48 48" fill="none">
+      <polygon points="24,6 6,18 42,18" fill="#1a68ff"/>
+      <rect x="8" y="18" width="32" height="4" fill="#1a68ff"/>
+      <rect x="11" y="22" width="4" height="14" fill="#1a68ff"/>
+      <rect x="19" y="22" width="4" height="14" fill="#1a68ff"/>
+      <rect x="25" y="22" width="4" height="14" fill="#1a68ff"/>
+      <rect x="33" y="22" width="4" height="14" fill="#1a68ff"/>
+      <rect x="4" y="39" width="40" height="4" fill="#004ad8"/>
+    </svg>
+    <span>Loan Default Risk Prediction</span>
+  </a>
+
+  <div>
+    <a href="{{ url_for('main.index') }}" class="btn-landing-login">&larr; Back to Home</a>
+  </div>
+</nav>
+
+<div style="min-height: calc(100vh - 140px); display: flex; align-items: center; justify-content: center; padding: 2rem 1rem;">
+  <div style="width: 100%; max-width: 460px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 20px; padding: 2.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+    <div style="text-align: center; margin-bottom: 2rem;">
+      <div style="width: 54px; height: 54px; border-radius: 14px; background: #eff6ff; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#1a68ff" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+      </div>
+      <h2 style="font-size: 1.6rem; font-weight: 800; color: #0f172a;">Sign Up</h2>
+      <p style="font-size: 0.9rem; color: #64748b; margin-top: 0.25rem;">Choose your role. Loan officer signups require administrator approval. Administrator accounts must be created by an existing administrator.</p>
+    </div>
+
+    <!-- Flash message -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <div style="padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1.25rem; font-size: 0.85rem; background: #fee2e2; color: #991b1b; border: 1px solid #fecaca;">
+            {{ msg }}
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST" action="{{ url_for('auth.signup') }}">
+      <div style="margin-bottom: 1.1rem;">
+        <label for="role" style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Sign up as</label>
+        <select id="role" name="role" required style="width: 100%; padding: 0.7rem 1rem; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.95rem; outline: none;">
+          <option value="Loan Officer" {% if selected_role|default('Loan Officer') == 'Loan Officer' %}selected{% endif %}>Loan Officer</option>
+          <option value="Administrator" {% if selected_role|default('Loan Officer') == 'Administrator' %}selected{% endif %}>Administrator</option>
+        </select>
+      </div>
+
+      <div style="margin-bottom: 1.1rem;">
+        <label for="name" style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Full Name</label>
+        <input type="text" id="name" name="name" value="{{ name or '' }}" autocomplete="name" placeholder="e.g. John Doe" maxlength="150" required style="width: 100%; padding: 0.7rem 1rem; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.95rem; outline: none;">
+      </div>
+
+      <div style="margin-bottom: 1.1rem;">
+        <label for="email" style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Email Address</label>
+        <input type="email" id="email" name="email" value="{{ email or '' }}" autocomplete="email" placeholder="you@example.com" maxlength="150" required style="width: 100%; padding: 0.7rem 1rem; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.95rem; outline: none;">
+      </div>
+
+      <div style="margin-bottom: 1.1rem;">
+        <label for="password" style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Password (at least 8 characters)</label>
+        <input type="password" id="password" name="password" autocomplete="new-password" minlength="8" required style="width: 100%; padding: 0.7rem 1rem; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.95rem; outline: none;">
+      </div>
+
+      <div style="margin-bottom: 1.5rem;">
+        <label for="confirm_password" style="display: block; font-size: 0.85rem; font-weight: 600; color: #334155; margin-bottom: 0.4rem;">Confirm Password</label>
+        <input type="password" id="confirm_password" name="confirm_password" autocomplete="new-password" minlength="8" required style="width: 100%; padding: 0.7rem 1rem; border: 1.5px solid #cbd5e1; border-radius: 10px; font-size: 0.95rem; outline: none;">
+      </div>
+
+      <button type="submit" style="width: 100%; background: #1a68ff; color: #ffffff; border: none; border-radius: 25px; padding: 0.8rem; font-size: 1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(26, 104, 255, 0.3);">
+        Sign Up &rarr;
+      </button>
+    </form>
+
+    <div style="text-align: center; margin-top: 1.75rem; font-size: 0.88rem; color: #64748b;">
+      Already have an account? <a href="{{ url_for('auth.login') }}" style="font-weight: 600; color: #1a68ff;">Sign in</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

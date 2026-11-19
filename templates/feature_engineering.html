@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block title %}Module 5: Feature Selection & Engineering | Loan Risk System{% endblock %}
+
+{% block content %}
+<div class="dashboard-viewport">
+  {% include 'header.html' %}
+
+  <div class="dashboard-body-container">
+    {% include 'sidebar.html' %}
+
+    <main class="dashboard-main-content">
+      <!-- Page Header -->
+      <div class="workspace-header-row">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+            <span class="badge" style="background: #e0e7ff; color: #3730a3; font-weight: 700;">MODULE 5</span>
+            <span style="font-size: 0.85rem; color: #64748b; font-weight: 500;">Feature Engineering &amp; Selection</span>
+          </div>
+          <h1 class="welcome-heading">Financial Ratios &amp; Feature Importance Engine</h1>
+          <p class="welcome-subtext">Mathematical derivation of credit stress metrics: Debt-to-Income (DTI), Loan-to-Income (LTI), Installment-to-Income, and Gini feature significance.</p>
+        </div>
+
+        <a href="{{ url_for('main.model_training') }}" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+          Train &amp; Evaluate Models (Module 6)
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </a>
+      </div>
+
+      <!-- Core Engineered Ratios Grid -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        
+        <!-- Ratio 1: DTI -->
+        <div class="chart-card-box">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <span class="badge" style="background: #e0e7ff; color: #1a68ff; font-weight: 700;">PRIMARY PREDICTOR</span>
+            <span style="font-size: 0.8rem; font-weight: 600; color: #64748b;">Importance: 28.5%</span>
+          </div>
+          <h3 style="font-size: 1.05rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem;">Debt-to-Income (DTI)</h3>
+          <p style="font-size: 0.82rem; color: #475569; margin-bottom: 1rem; line-height: 1.5;">
+            Proportion of gross monthly earnings committed to existing obligations plus the new installment.
+          </p>
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 0.75rem; font-family: monospace; font-size: 0.8rem; color: #1e293b; margin-bottom: 0.75rem;">
+            DTI = (Existing Debt + Installment) / Income &times; 100%
+          </div>
+          <div style="font-size: 0.78rem; color: #64748b;">
+            <strong>Underwriting Limit:</strong> &le; 40% (Acceptable) | &gt; 50% (High Delinquency)
+          </div>
+        </div>
+
+        <!-- Ratio 2: LTI -->
+        <div class="chart-card-box">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <span class="badge" style="background: #f1f5f9; color: #475569; font-weight: 700;">LEVERAGE MULTIPLIER</span>
+            <span style="font-size: 0.8rem; font-weight: 600; color: #64748b;">Importance: 16.5%</span>
+          </div>
+          <h3 style="font-size: 1.05rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem;">Loan-to-Income (LTI)</h3>
+          <p style="font-size: 0.82rem; color: #475569; margin-bottom: 1rem; line-height: 1.5;">
+            Facility principal relative to monthly earnings, indicating total borrower burden.
+          </p>
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 0.75rem; font-family: monospace; font-size: 0.8rem; color: #1e293b; margin-bottom: 0.75rem;">
+            LTI = Loan Principal / Monthly Income
+          </div>
+          <div style="font-size: 0.78rem; color: #64748b;">
+            <strong>Underwriting Limit:</strong> &le; 4.0&times; (Healthy) | &gt; 6.0&times; (Overextended)
+          </div>
+        </div>
+
+        <!-- Ratio 3: Installment to Income -->
+        <div class="chart-card-box">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <span class="badge" style="background: #f1f5f9; color: #475569; font-weight: 700;">CASHFLOW LIQUIDITY</span>
+            <span style="font-size: 0.8rem; font-weight: 600; color: #64748b;">Importance: 13.0%</span>
+          </div>
+          <h3 style="font-size: 1.05rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem;">Installment-to-Income (ITI)</h3>
+          <p style="font-size: 0.82rem; color: #475569; margin-bottom: 1rem; line-height: 1.5;">
+            Monthly amortization obligation of the proposed loan taken alone against monthly earnings.
+          </p>
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 0.75rem; font-family: monospace; font-size: 0.8rem; color: #1e293b; margin-bottom: 0.75rem;">
+            ITI = Proposed Monthly Installment / Monthly Income &times; 100%
+          </div>
+          <div style="font-size: 0.78rem; color: #64748b;">
+            <strong>Underwriting Limit:</strong> &le; 30% (Safe) | &gt; 40% (Restricted)
+          </div>
+        </div>
+
+        <!-- Ratio 4: Disposable Surplus -->
+        <div class="chart-card-box">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+            <span class="badge" style="background: #f0fdf4; color: #166534; font-weight: 700;">SHOCK ABSORBER</span>
+            <span style="font-size: 0.8rem; font-weight: 600; color: #64748b;">Importance: 9.5%</span>
+          </div>
+          <h3 style="font-size: 1.05rem; font-weight: 700; color: #0f172a; margin-bottom: 0.5rem;">Disposable Surplus</h3>
+          <p style="font-size: 0.82rem; color: #475569; margin-bottom: 1rem; line-height: 1.5;">
+            Residual cash left for living expenses and emergencies after all monthly debt service.
+          </p>
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 0.75rem; font-family: monospace; font-size: 0.8rem; color: #1e293b; margin-bottom: 0.75rem;">
+            Surplus = Monthly Income - (Existing Debt + Installment)
+          </div>
+          <div style="font-size: 0.78rem; color: #64748b;">
+            <strong>Minimum Standard:</strong> &ge; MWK 150,000 residual buffer
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature Importance Rankings Table -->
+      <div class="chart-card-box" style="margin-bottom: 2rem;">
+        <div class="chart-box-header" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 0.85rem; margin-bottom: 1.25rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a68ff" stroke-width="2.5"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+          <span>Feature Selection &amp; Importance Weightings (Random Forest &amp; XGBoost Gini Impurity)</span>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Feature Name</th>
+                <th>Origin / Nature</th>
+                <th>Importance Score</th>
+                <th>Relative Weight Visualization</th>
+                <th>Predictive Significance</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for f in rankings %}
+              <tr>
+                <td>
+                  <strong>{{ f.feature_name }}</strong>
+                </td>
+                <td>
+                  {% if 'Ratio' in f.feature_name or 'Installment' in f.feature_name %}
+                  <span class="badge" style="background:#e0e7ff; color:#3730a3;">Engineered Ratio</span>
+                  {% else %}
+                  <span class="badge" style="background:#f1f5f9; color:#475569;">Raw Feature</span>
+                  {% endif %}
+                </td>
+                <td><code>{{ "%.3f" | format(f.importance_score) }}</code></td>
+                <td style="width: 35%;">
+                  <div style="height: 10px; background: #f1f5f9; border-radius: 5px; overflow: hidden;">
+                    <div style="width: {{ f.importance_score * 350 }}%; height: 100%; background: #1a68ff; border-radius: 5px;"></div>
+                  </div>
+                </td>
+                <td>
+                  {% if f.importance_score > 0.20 %}
+                  <span class="badge badge-high" style="background:#fee2e2; color:#991b1b;">High Impact</span>
+                  {% elif f.importance_score > 0.10 %}
+                  <span class="badge badge-medium" style="background:#fef3c7; color:#b45309;">Moderate Impact</span>
+                  {% else %}
+                  <span class="badge badge-low" style="background:#f0fdf4; color:#15803d;">Supporting Feature</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+{% endblock %}

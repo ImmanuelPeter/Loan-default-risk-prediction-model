@@ -1,0 +1,1191 @@
+/* extended_beauty.css – correct-spelling alias that imports the main stylesheet */
+@import url('extended_beuaty.css');
+
+/* ====================================================================
+   SUPPLEMENTARY COMPONENT LIBRARY
+   These classes are used across all dashboard templates
+   ==================================================================== */
+
+/* ------------------------------------------------------------------
+   Generic Utility: container, text helpers
+   ------------------------------------------------------------------ */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.text-muted {
+  color: #94a3b8;
+}
+
+.text-center { text-align: center; }
+.mt-1  { margin-top: 0.25rem; }
+.mt-2  { margin-top: 0.5rem; }
+.mt-3  { margin-top: 0.75rem; }
+.mb-1  { margin-bottom: 0.25rem; }
+.mb-2  { margin-bottom: 0.5rem; }
+.mb-3  { margin-bottom: 0.75rem; }
+
+/* ------------------------------------------------------------------
+   Generic Button System
+   ------------------------------------------------------------------ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.2rem;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn-primary {
+  background: #1a68ff;
+  color: #ffffff;
+  box-shadow: 0 3px 8px rgba(26, 104, 255, 0.3);
+}
+.btn-primary:hover {
+  background: #0b55ea;
+  color: #ffffff;
+}
+
+.btn-secondary {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1.5px solid #e2e8f0;
+}
+.btn-secondary:hover {
+  background: #e2e8f0;
+  color: #334155;
+  border-color: #cbd5e1;
+}
+
+.btn-success {
+  background: #10b981;
+  color: #ffffff;
+}
+.btn-success:hover {
+  background: #059669;
+  color: #ffffff;
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: #ffffff;
+}
+.btn-danger:hover {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.btn-warning {
+  background: #f59e0b;
+  color: #ffffff;
+}
+.btn-warning:hover {
+  background: #d97706;
+  color: #ffffff;
+}
+
+.btn-sm {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  border-radius: 6px;
+}
+
+.btn-lg {
+  padding: 0.75rem 1.75rem;
+  font-size: 1rem;
+  border-radius: 10px;
+}
+
+/* ------------------------------------------------------------------
+   Badge / Pill System (used in prediction_detail.html, user_management, etc.)
+   ------------------------------------------------------------------ */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.badge-low {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.badge-moderate,
+.badge-medium {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.badge-high {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.badge-info {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.badge-active {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.badge-inactive {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.badge-pending {
+  background: #fef9c3;
+  color: #713f12;
+}
+
+/* ------------------------------------------------------------------
+   Table System (used across all list pages)
+   ------------------------------------------------------------------ */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 8px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+  color: #334155;
+}
+
+.table thead tr {
+  background: #f8fafc;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.table th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+}
+
+.table td {
+  padding: 0.85rem 1rem;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: middle;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background-color: #fafbff;
+}
+
+/* ------------------------------------------------------------------
+   Result Card (prediction_detail.html hero card)
+   ------------------------------------------------------------------ */
+.result-card {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 1.75rem 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.result-card.low {
+  background: linear-gradient(135deg, #f0fdf4 0%, #ffffff 100%);
+  border-color: #86efac;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.1);
+}
+
+.result-card.moderate {
+  background: linear-gradient(135deg, #fffbeb 0%, #ffffff 100%);
+  border-color: #fcd34d;
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.1);
+}
+
+.result-card.high {
+  background: linear-gradient(135deg, #fff1f2 0%, #ffffff 100%);
+  border-color: #fca5a5;
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.1);
+}
+
+/* ------------------------------------------------------------------
+   Result Grid (2-column layout inside result-card)
+   ------------------------------------------------------------------ */
+.result-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+}
+
+@media (max-width: 768px) {
+  .result-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Factors / SHAP Insights List
+   ------------------------------------------------------------------ */
+.factors-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.factors-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  font-size: 0.88rem;
+  color: #334155;
+  line-height: 1.5;
+  padding: 0.5rem 0.75rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  border-left: 3px solid #1a68ff;
+}
+
+.factors-list li::before {
+  content: "▸";
+  color: #1a68ff;
+  font-size: 0.75rem;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.risk-chart-card {
+  min-width: 0;
+  padding: 1.25rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.risk-chart-card h4 {
+  margin: 0 0 0.25rem;
+  color: #0f172a;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.risk-chart-card > p {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.82rem;
+}
+
+.risk-chart-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1.25rem;
+}
+
+.risk-donut {
+  --risk-color: #dc2626;
+  position: relative;
+  display: grid;
+  width: 176px;
+  height: 176px;
+  flex: 0 0 176px;
+  place-items: center;
+  border-radius: 50%;
+  background: conic-gradient(var(--risk-color) 0 var(--risk-probability), #e2e8f0 var(--risk-probability) 100%);
+}
+
+.risk-donut.low {
+  --risk-color: #059669;
+}
+
+.risk-donut.moderate {
+  --risk-color: #d97706;
+}
+
+.risk-donut::before {
+  position: absolute;
+  width: 126px;
+  height: 126px;
+  border-radius: 50%;
+  background: #fff;
+  content: "";
+}
+
+.risk-donut > span {
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #0f172a;
+}
+
+.risk-donut strong {
+  font-size: 1.55rem;
+  line-height: 1.2;
+}
+
+.risk-donut small {
+  color: #64748b;
+  font-size: 0.75rem;
+}
+
+.risk-chart-legend {
+  display: grid;
+  gap: 0.9rem;
+  min-width: 185px;
+}
+
+.risk-chart-legend > div {
+  display: grid;
+  grid-template-columns: 12px 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+  color: #475569;
+  font-size: 0.8rem;
+}
+
+.risk-chart-legend strong {
+  color: #0f172a;
+  white-space: nowrap;
+}
+
+.risk-analytics-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 2rem;
+}
+
+.risk-analytics-card {
+  min-width: 0;
+  margin: 0;
+}
+
+.risk-filter-card {
+  margin-bottom: 1.5rem;
+}
+
+.risk-filter-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.risk-filter-heading h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1.05rem;
+  font-weight: 750;
+}
+
+.risk-filter-heading p {
+  max-width: 760px;
+  margin: 0.35rem 0 0;
+  color: #64748b;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+.risk-filter-form {
+  display: grid;
+  grid-template-columns: minmax(220px, 2fr) repeat(3, minmax(145px, 1fr));
+  align-items: end;
+  gap: 0.9rem;
+}
+
+.risk-filter-field {
+  display: grid;
+  min-width: 0;
+  gap: 0.35rem;
+}
+
+.risk-filter-field label {
+  color: #334155;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.risk-filter-field input,
+.risk-filter-field select {
+  width: 100%;
+  min-height: 42px;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #fff;
+  color: #0f172a;
+  font-size: 0.84rem;
+}
+
+.risk-filter-field input:focus,
+.risk-filter-field select:focus {
+  border-color: #2563eb;
+  outline: 3px solid rgba(37, 99, 235, 0.15);
+}
+
+.risk-filter-actions {
+  display: flex;
+  grid-column: 1 / -1;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  padding-top: 0.25rem;
+}
+
+.risk-active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid #e2e8f0;
+  color: #475569;
+  font-size: 0.75rem;
+}
+
+.risk-active-filters span {
+  padding: 0.25rem 0.55rem;
+  border: 1px solid #bfdbfe;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #1e40af;
+}
+
+.risk-analytics-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.75rem;
+}
+
+.risk-analytics-heading h2 {
+  margin: 0;
+  color: #0f172a;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.risk-analytics-heading p {
+  margin: 0.25rem 0 0;
+  color: #64748b;
+  font-size: 0.78rem;
+}
+
+.risk-analytics-heading > span {
+  flex: 0 0 auto;
+  color: #64748b;
+  font-size: 0.72rem;
+}
+
+.risk-distribution-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.risk-distribution-content canvas {
+  display: block;
+  max-width: 100%;
+}
+
+.risk-distribution-legend {
+  display: grid;
+  gap: 0.75rem;
+  min-width: 135px;
+}
+
+.risk-distribution-legend > div {
+  display: grid;
+  grid-template-columns: 12px 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+  color: #475569;
+  font-size: 0.8rem;
+}
+
+.risk-distribution-legend strong {
+  color: #0f172a;
+}
+
+.risk-legend-dot.low {
+  background: #10b981;
+}
+
+.risk-legend-dot.medium {
+  background: #f59e0b;
+}
+
+.risk-legend-dot.high {
+  background: #ef4444;
+}
+
+.risk-trend-chart {
+  width: 100%;
+  min-height: 210px;
+  margin-top: 0.7rem;
+  overflow: hidden;
+}
+
+.risk-trend-chart canvas {
+  display: block;
+  max-width: 100%;
+}
+
+.risk-chart-empty {
+  display: grid;
+  min-height: 210px;
+  place-items: center;
+  color: #64748b;
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.risk-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.risk-legend-dot.default {
+  background: #dc2626;
+}
+
+.risk-legend-dot.default.low {
+  background: #059669;
+}
+
+.risk-legend-dot.default.moderate {
+  background: #d97706;
+}
+
+.risk-legend-dot.non-default {
+  background: #cbd5e1;
+}
+
+.underwriting-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 1.5rem;
+}
+
+.financial-summary-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+  gap: 0.65rem;
+}
+
+.financial-summary-metric {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 0.85rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.financial-summary-metric span {
+  color: #64748b;
+  font-size: 0.75rem;
+}
+
+.financial-summary-metric strong {
+  color: #0f172a;
+  font-size: 0.95rem;
+  overflow-wrap: anywhere;
+}
+
+.financial-bars {
+  display: grid;
+  gap: 0.8rem;
+  margin: 1.25rem 0;
+}
+
+.financial-bar-row > div:first-child {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.35rem;
+  color: #475569;
+  font-size: 0.78rem;
+}
+
+.financial-bar-row strong {
+  color: #0f172a;
+  white-space: nowrap;
+}
+
+.financial-bar-track {
+  width: 100%;
+  height: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #f1f5f9;
+}
+
+.financial-bar {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.financial-bar.income {
+  background: #2563eb;
+}
+
+.financial-bar.debt {
+  background: #f97316;
+}
+
+.financial-bar.balance {
+  background: #10b981;
+}
+
+.financial-chart-note {
+  margin: 0;
+  color: #64748b;
+  font-size: 0.78rem;
+}
+
+.financial-details-table {
+  margin-bottom: 0;
+  border-top: 1px solid #e2e8f0;
+}
+
+.credit-history-fieldset {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+}
+
+.credit-history-fieldset legend {
+  float: none;
+  width: auto;
+  margin: 0;
+  padding: 0 0.35rem;
+  color: #0f172a;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.credit-history-fieldset > p {
+  margin: 0 0 0.85rem;
+  color: #64748b;
+  font-size: 0.78rem;
+}
+
+.credit-history-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 0.75rem;
+  margin-top: 0.85rem;
+}
+
+.credit-history-fields[hidden] {
+  display: none;
+}
+
+.credit-history-summary {
+  margin: 1rem 0;
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.credit-history-summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  color: #0f172a;
+  font-size: 0.88rem;
+}
+
+.credit-history-status {
+  padding: 0.25rem 0.55rem;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #334155;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.credit-history-summary p {
+  margin: 0.7rem 0;
+  color: #475569;
+  font-size: 0.82rem;
+}
+
+.credit-history-metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin: 0.85rem 0;
+}
+
+.credit-history-metrics > div {
+  min-width: 0;
+}
+
+.credit-history-metrics dt {
+  color: #64748b;
+  font-size: 0.72rem;
+  font-weight: 500;
+}
+
+.credit-history-metrics dd {
+  margin: 0.15rem 0 0;
+  color: #0f172a;
+  font-size: 0.85rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.credit-history-summary > small {
+  color: #64748b;
+  font-size: 0.72rem;
+}
+
+.underwriting-applicant,
+.underwriting-prediction {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+}
+
+.underwriting-applicant > div:first-child,
+.underwriting-prediction > div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.underwriting-applicant strong,
+.underwriting-prediction strong {
+  color: #0f172a;
+  font-size: 0.95rem;
+  overflow-wrap: anywhere;
+}
+
+.underwriting-applicant span:not(.underwriting-eyebrow),
+.underwriting-prediction span:not(.underwriting-eyebrow) {
+  color: #64748b;
+  font-size: 0.78rem;
+}
+
+.underwriting-eyebrow {
+  color: #64748b;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.underwriting-applicant-details {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+  text-align: right;
+}
+
+.underwriting-prediction.low {
+  border-color: #86efac;
+  background: #f0fdf4;
+}
+
+.underwriting-prediction.moderate {
+  border-color: #fcd34d;
+  background: #fffbeb;
+}
+
+.underwriting-prediction.high {
+  border-color: #fca5a5;
+  background: #fff1f2;
+}
+
+.underwriting-prediction.pending {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+}
+
+.decision-flash {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  margin-bottom: 1.5rem;
+  padding: 0.9rem 1.1rem;
+  border: 1px solid;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+.decision-flash.success {
+  border-color: #86efac;
+  background: #ecfdf5;
+  color: #065f46;
+}
+
+.decision-flash.warning {
+  border-color: #fcd34d;
+  background: #fffbeb;
+  color: #92400e;
+}
+
+.decision-flash.danger {
+  border-color: #fca5a5;
+  background: #fef2f2;
+  color: #991b1b;
+}
+
+.decision-flash.info {
+  border-color: #bfdbfe;
+  background: #eff6ff;
+  color: #1e40af;
+}
+
+.decision-flash-icon {
+  display: grid;
+  width: 1.35rem;
+  height: 1.35rem;
+  flex: 0 0 1.35rem;
+  place-items: center;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.decision-summary {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.decision-summary.approved {
+  border-color: #86efac;
+  background: #f0fdf4;
+}
+
+.decision-summary.declined {
+  border-color: #fca5a5;
+  background: #fff1f2;
+}
+
+.decision-summary.review {
+  border-color: #fcd34d;
+  background: #fffbeb;
+}
+
+.decision-summary-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.decision-summary-header > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.decision-summary-title {
+  color: #0f172a;
+  font-size: 1.1rem;
+}
+
+.decision-summary-notes {
+  margin: 0.8rem 0;
+  color: #334155;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.decision-summary-footer {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  padding-top: 0.65rem;
+  border-top: 1px solid rgba(100, 116, 139, 0.2);
+  color: #64748b;
+  font-size: 0.75rem;
+}
+
+.decision-summary-footer strong {
+  color: #334155;
+}
+
+.decision-edit-hint {
+  margin: 0 0 0.9rem;
+  color: #64748b;
+  font-size: 0.8rem;
+}
+
+@media (max-width: 900px) {
+  .underwriting-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .risk-analytics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .risk-filter-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .risk-chart-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .risk-donut {
+    align-self: center;
+  }
+
+  .risk-chart-legend {
+    width: 100%;
+  }
+
+  .underwriting-applicant,
+  .underwriting-prediction {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .underwriting-applicant-details {
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .risk-filter-heading {
+    flex-direction: column;
+  }
+
+  .risk-filter-form {
+    grid-template-columns: 1fr;
+  }
+
+  .risk-filter-actions {
+    grid-column: auto;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Flash Alert Variants (success, warning, danger, info)
+   ------------------------------------------------------------------ */
+.alert {
+  padding: 0.85rem 1.25rem;
+  border-radius: 10px;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.alert-success {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.alert-warning {
+  background: #fffbeb;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+
+.alert-danger {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fca5a5;
+}
+
+.alert-info {
+  background: #eff6ff;
+  color: #1e40af;
+  border: 1px solid #93c5fd;
+}
+
+/* ------------------------------------------------------------------
+   Tab System (used in reports.html)
+   ------------------------------------------------------------------ */
+.tab-nav {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid #e2e8f0;
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+}
+
+.tab-btn {
+  padding: 0.65rem 1.4rem;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #64748b;
+  background: transparent;
+  border: none;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  text-decoration: none;
+  margin-bottom: -2px;
+}
+
+.tab-btn:hover {
+  color: #1a68ff;
+}
+
+.tab-btn.active {
+  color: #1a68ff;
+  border-bottom-color: #1a68ff;
+}
+
+/* ------------------------------------------------------------------
+   Form Controls (supplemental, for module-specific forms)
+   ------------------------------------------------------------------ */
+.form-group {
+  margin-bottom: 1.15rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 0.35rem;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.7rem 0.9rem;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #0f172a;
+  background: #ffffff;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-control:focus {
+  border-color: #1a68ff;
+  box-shadow: 0 0 0 3px rgba(26, 104, 255, 0.1);
+}
+
+/* ------------------------------------------------------------------
+   Progress Bars (model_performance.html)
+   ------------------------------------------------------------------ */
+.progress-bar-container {
+  width: 100%;
+  height: 8px;
+  background: #f1f5f9;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #1a68ff, #60a5fa);
+  transition: width 0.6s ease;
+}
+
+/* ------------------------------------------------------------------
+   Section Headers
+   ------------------------------------------------------------------ */
+.section-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin-bottom: 0.25rem;
+}
+
+.section-subtitle {
+  font-size: 0.9rem;
+  color: #64748b;
+  margin-bottom: 1.5rem;
+}
+
+/* ------------------------------------------------------------------
+   Empty State Card
+   ------------------------------------------------------------------ */
+.empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #64748b;
+}
+
+.empty-state-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 0.4rem;
+}
+
+.empty-state p {
+  font-size: 0.9rem;
+  margin-bottom: 1.25rem;
+}

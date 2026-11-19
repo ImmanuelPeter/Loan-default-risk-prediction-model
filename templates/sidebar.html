@@ -1,0 +1,76 @@
+<aside id="dashboardSidebar" class="dashboard-sidebar collapse d-lg-flex">
+  <ul class="sidebar-nav-list">
+    {% if current_user.is_platform_owner %}
+    <li>
+      <a href="{{ url_for('main.platform_admin') }}" class="sidebar-link {% if active_page == 'platform_admin' %}active{% endif %}">
+        <span class="link-text">Company management</span>
+      </a>
+    </li>
+    <li>
+      <a href="{{ url_for('main.platform_activity') }}"
+         class="sidebar-link platform-activity-nav-button {% if active_page == 'platform_activity' %}active{% endif %}"
+         aria-label="Platform activity, {{ activity_count }} events" title="Platform activity">
+        <span class="link-text">Platform activity</span>
+        <span class="platform-activity-count">{{ activity_count }}</span>
+      </a>
+    </li>
+    <li>
+      <a href="{{ url_for('main.platform_model_management') }}"
+         class="sidebar-link {% if active_page == 'platform_models' %}active{% endif %}">
+        <span class="link-text">Model management</span>
+      </a>
+    </li>
+    {% else %}
+    <li>
+      <a href="{{ url_for('main.profile') }}" class="sidebar-link {% if active_page == 'dashboard' %}active{% endif %}">
+        <span class="link-text">Dashboard</span>
+      </a>
+    </li>
+    <li>
+      <a href="{{ url_for('main.company_profile') }}" class="sidebar-link {% if active_page == 'company_profile' %}active{% endif %}">
+        <span class="link-text">Company profile</span>
+      </a>
+    </li>
+    <li>
+      <a href="{{ url_for('main.applicants_list') }}" class="sidebar-link {% if active_page == 'applicants' %}active{% endif %}">
+        <span class="link-text">Borrowers</span>
+      </a>
+    </li>
+    <li>
+      <a href="{{ url_for('main.loan_applications') }}" class="sidebar-link {% if active_page == 'applications' %}active{% endif %}">
+        <span class="link-text">Loan applications</span>
+      </a>
+    </li>
+    <li>
+      <a href="{{ url_for('main.risk_predictions') }}" class="sidebar-link {% if active_page == 'predictions' %}active{% endif %}">
+        <span class="link-text">Risk predictions</span>
+      </a>
+    </li>
+    <li>
+      <a href="{{ url_for('main.reports') }}" class="sidebar-link {% if active_page == 'reports' %}active{% endif %}">
+        <span class="link-text">Reports</span>
+      </a>
+    </li>
+    {% if current_user.is_org_admin %}
+    <li>
+      <a href="{{ url_for('main.user_management') }}" class="sidebar-link {% if active_page == 'users' %}active{% endif %}">
+        <span class="link-text">Staff accounts</span>
+      </a>
+    </li>
+    {% endif %}
+    {% if current_user.is_org_admin %}
+    <li>
+      <a href="{{ url_for('main.settings') }}" class="sidebar-link {% if active_page == 'settings' %}active{% endif %}">
+        <span class="link-text">Settings</span>
+      </a>
+    </li>
+    {% endif %}
+    {% endif %}
+  </ul>
+
+  <div class="sidebar-bottom">
+    <a href="{{ url_for('auth.logout') }}" class="sidebar-link">
+      <span class="link-text">Sign out</span>
+    </a>
+  </div>
+</aside>

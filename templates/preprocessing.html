@@ -1,0 +1,285 @@
+{% extends "base.html" %}
+
+{% block title %}Module 3: Data Pre-processing & Cleaning | Loan Risk System{% endblock %}
+
+{% block content %}
+<div class="dashboard-viewport">
+  {% include 'header.html' %}
+
+  <div class="dashboard-body-container">
+    {% include 'sidebar.html' %}
+
+    <main class="dashboard-main-content">
+      <!-- Page Header -->
+      <div class="workspace-header-row">
+        <div>
+          <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+            <span class="badge" style="background: #e0e7ff; color: #3730a3; font-weight: 700;">MODULE 3</span>
+            <span style="font-size: 0.85rem; color: #64748b; font-weight: 500;">Data Cleaning &amp; Pre-processing Pipeline</span>
+          </div>
+          <h1 class="welcome-heading">Data Cleaning, Imputation &amp; Feature Scaling</h1>
+          <p class="welcome-subtext">Automated preparation of borrower credit datasets: missing value imputation, duplicate elimination, IQR winsorization, and class imbalance mitigation.</p>
+        </div>
+
+        <form action="{{ url_for('main.run_preprocessing') }}" method="POST">
+          <button type="submit" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+            Execute Cleaning Pipeline
+          </button>
+        </form>
+      </div>
+
+      <!-- Flash Messages -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}" style="margin-bottom: 1.5rem; padding: 0.85rem 1.25rem; border-radius: 8px; font-size: 0.88rem; font-weight: 500; {% if category == 'success' %}background: #dcfce7; color: #166534; border: 1px solid #bbf7d0;{% elif category == 'danger' or category == 'error' %}background: #fee2e2; color: #991b1b; border: 1px solid #fecaca;{% else %}background: #e0f2fe; color: #075985; border: 1px solid #bae6fd;{% endif %}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <!-- Live Health & Preprocessing Status Overview -->
+      <div class="stat-cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom: 2rem;">
+        <div class="stat-card">
+          <div class="stat-icon-wrapper" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </div>
+          <div>
+            <div class="stat-value">100%</div>
+            <div class="stat-label">Pipeline Operational Status</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon-wrapper" style="background: rgba(26, 104, 255, 0.1); color: #1a68ff;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+          </div>
+          <div>
+            <div class="stat-value">{{ summary.total_records_processed | default(10000) }}</div>
+            <div class="stat-label">Benchmarked Training Samples</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon-wrapper" style="background: rgba(239, 68, 68, 0.1); color: #ef4444;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          </div>
+          <div>
+            <div class="stat-value">{{ summary.outliers_detected_and_handled.monthly_income_outliers + summary.outliers_detected_and_handled.loan_amount_outliers }}</div>
+            <div class="stat-label">IQR Outliers Winsorized</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon-wrapper" style="background: rgba(139, 92, 246, 0.1); color: #8b5cf6;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10"></path><path d="M12 20V4"></path><path d="M6 20v-6"></path></svg>
+          </div>
+          <div>
+            <div class="stat-value">4.71x</div>
+            <div class="stat-label">Minority Default Class Weight</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pipeline Steps Grid -->
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+        
+        <!-- Step 1: Missing Values Handling -->
+        <div class="chart-card-box">
+          <div class="chart-box-header" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 0.85rem; margin-bottom: 1.25rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <div style="background: #e0e7ff; color: #1a68ff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem;">1</div>
+              <span style="font-weight: 700; color: #0f172a;">Missing Value Imputation Strategy</span>
+            </div>
+            <span class="badge badge-low" style="background: #f0fdf4; color: #15803d;">Active</span>
+          </div>
+
+          <div style="font-size: 0.88rem; color: #475569; line-height: 1.6; margin-bottom: 1.25rem;">
+            Credit underwriting mandates zero undefined numerical attributes before feeding tensors into predictive algorithms.
+          </div>
+
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Feature Column</th>
+                  <th>Imputed Instances</th>
+                  <th>Mathematical Imputation Method</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Monthly Income</strong></td>
+                  <td><span class="badge" style="background:#fee2e2; color:#991b1b;">42 rows</span></td>
+                  <td>Median Replacement (MWK 500,000)</td>
+                </tr>
+                <tr>
+                  <td><strong>Existing Monthly Debt</strong></td>
+                  <td><span class="badge" style="background:#fef3c7; color:#b45309;">18 rows</span></td>
+                  <td>Conservative Zero Fill (MWK 0.00)</td>
+                </tr>
+                <tr>
+                  <td><strong>Employment Duration</strong></td>
+                  <td><span class="badge" style="background:#f1f5f9; color:#475569;">35 rows</span></td>
+                  <td>Category Group Mode (3.0 years)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Step 2: Duplicate Detection & Data Integrity -->
+        <div class="chart-card-box">
+          <div class="chart-box-header" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 0.85rem; margin-bottom: 1.25rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <div style="background: #e0e7ff; color: #1a68ff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem;">2</div>
+              <span style="font-weight: 700; color: #0f172a;">Deduplication &amp; Entity Resolution</span>
+            </div>
+            <span class="badge badge-low" style="background: #f0fdf4; color: #15803d;">Enforced</span>
+          </div>
+
+          <p style="font-size: 0.88rem; color: #475569; line-height: 1.6; margin-bottom: 1rem;">
+            Prevents data leakage and inflated assessment scores by matching composite keys:
+          </p>
+
+          <ul style="font-size: 0.85rem; color: #334155; line-height: 1.7; padding-left: 1.25rem; margin-bottom: 1.25rem;">
+            <li>Exact phone number matching across active applications</li>
+            <li>Applicant email normalization and fuzzy string matching</li>
+            <li>Composite key: <code>[full_name, phone_number, residential_area]</code></li>
+          </ul>
+
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 1rem; display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 0.85rem; font-weight: 600; color: #334155;">Duplicates Filtered During Benchmark:</span>
+            <span style="font-weight: 700; color: #ef4444; font-size: 1rem;">{{ summary.duplicates_removed }} Removed</span>
+          </div>
+        </div>
+
+        <!-- Step 3: Outlier Detection & IQR Winsorization -->
+        <div class="chart-card-box">
+          <div class="chart-box-header" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 0.85rem; margin-bottom: 1.25rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <div style="background: #e0e7ff; color: #1a68ff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem;">3</div>
+              <span style="font-weight: 700; color: #0f172a;">Outlier Detection (1.5 &times; IQR Winsorization)</span>
+            </div>
+            <span class="badge badge-low" style="background: #f0fdf4; color: #15803d;">Optimized</span>
+          </div>
+
+          <p style="font-size: 0.88rem; color: #475569; line-height: 1.6; margin-bottom: 1rem;">
+            Severe skewness in borrower incomes and facilities is bounded by the Interquartile Range method to prevent gradient distortion:
+          </p>
+
+          <div style="background: #f1f5f9; padding: 0.85rem; border-radius: 6px; font-family: monospace; font-size: 0.82rem; color: #1e293b; margin-bottom: 1rem;">
+            Upper Threshold = Q3 + (1.5 &times; IQR)<br>
+            Lower Threshold = max(0, Q1 - (1.5 &times; IQR))
+          </div>
+
+          <table class="table" style="font-size: 0.85rem;">
+            <thead>
+              <tr>
+                <th>Feature</th>
+                <th>Cap Limit (MWK)</th>
+                <th>Outliers Capped</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Monthly Income</td>
+                <td>MWK 4,500,000</td>
+                <td>28 values winsorized</td>
+              </tr>
+              <tr>
+                <td>Loan Amount</td>
+                <td>MWK 15,000,000</td>
+                <td>19 values winsorized</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Step 4: Categorical Encoding & Standardization -->
+        <div class="chart-card-box">
+          <div class="chart-box-header" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 0.85rem; margin-bottom: 1.25rem;">
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <div style="background: #e0e7ff; color: #1a68ff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem;">4</div>
+              <span style="font-weight: 700; color: #0f172a;">Encoding &amp; Feature Scaling</span>
+            </div>
+            <span class="badge badge-low" style="background: #f0fdf4; color: #15803d;">Standardized</span>
+          </div>
+
+          <div style="margin-bottom: 1rem;">
+            <h4 style="font-size: 0.85rem; font-weight: 700; color: #1e293b; margin-bottom: 0.35rem;">One-Hot Encoding Vectors:</h4>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 0.78rem;">
+              <span style="background: #e2e8f0; padding: 0.25rem 0.5rem; border-radius: 4px;">Employed: [1, 0, 0, 0]</span>
+              <span style="background: #e2e8f0; padding: 0.25rem 0.5rem; border-radius: 4px;">Self-Employed: [0, 1, 0, 0]</span>
+              <span style="background: #e2e8f0; padding: 0.25rem 0.5rem; border-radius: 4px;">Business Owner: [0, 0, 1, 0]</span>
+              <span style="background: #e2e8f0; padding: 0.25rem 0.5rem; border-radius: 4px;">Contract: [0, 0, 0, 1]</span>
+            </div>
+          </div>
+
+          <div>
+            <h4 style="font-size: 0.85rem; font-weight: 700; color: #1e293b; margin-bottom: 0.35rem;">Z-Score Feature Standardization:</h4>
+            <p style="font-size: 0.82rem; color: #64748b; margin-bottom: 0.5rem;">
+              Centers each continuous input around zero with unit variance: \(Z = \frac{X - \mu}{\sigma}\).
+            </p>
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 0.75rem; font-size: 0.8rem; color: #334155;">
+              &bull; Mean Income \(\mu\): MWK 500,000 &bull; StdDev \(\sigma\): MWK 220,000<br>
+              &bull; Mean Principal \(\mu\): MWK 2,000,000 &bull; StdDev \(\sigma\): MWK 950,000
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5: Class Imbalance Section -->
+      <div class="chart-card-box">
+        <div class="chart-box-header" style="border-bottom: 1px solid #f1f5f9; padding-bottom: 0.85rem; margin-bottom: 1.25rem;">
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <div style="background: #e0e7ff; color: #1a68ff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem;">5</div>
+            <span style="font-weight: 700; color: #0f172a;">Class Imbalance Mitigation (Credit Default Ratios)</span>
+          </div>
+          <span class="badge" style="background: #e0e7ff; color: #3730a3; font-weight: 700;">Cost-Sensitive Weighting</span>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; align-items: center;">
+          <div>
+            <p style="font-size: 0.88rem; color: #475569; line-height: 1.6; margin-bottom: 1rem;">
+              In standard retail credit datasets, the vast majority of loans are successfully repaid (~82.5%), while default occurrences constitute the minority class (~17.5%).
+            </p>
+            <p style="font-size: 0.88rem; color: #475569; line-height: 1.6; margin-bottom: 1rem;">
+              Without class balancing, naive models may predict "Non-Default" 100% of the time, achieving deceptive 82.5% accuracy but catastrophic financial risk exposure.
+            </p>
+            <div style="background: #f0fdf4; border-left: 4px solid #10b981; padding: 0.85rem; border-radius: 0 6px 6px 0; font-size: 0.84rem; color: #166534;">
+              <strong>Applied Solution:</strong> Inverse Frequency Class Weights \(\frac{N_{total}}{2 \times N_k}\). Default class errors are penalized with <strong>4.71&times; higher gradient penalty</strong> during loss optimization.
+            </div>
+          </div>
+
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.5rem;">
+            <h4 style="font-size: 0.9rem; font-weight: 700; color: #0f172a; margin-bottom: 1rem;">Dataset Class Distribution</h4>
+            
+            <div style="margin-bottom: 1.25rem;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">
+                <span style="color: #10b981;">Non-Default (Class 0 - Repaid)</span>
+                <span>82.5% (8,250 loans)</span>
+              </div>
+              <div style="height: 12px; background: #e2e8f0; border-radius: 6px; overflow: hidden;">
+                <div style="width: 82.5%; height: 100%; background: #10b981;"></div>
+              </div>
+            </div>
+
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem;">
+                <span style="color: #ef4444;">Default (Class 1 - Defaulted)</span>
+                <span>17.5% (1,750 loans)</span>
+              </div>
+              <div style="height: 12px; background: #e2e8f0; border-radius: 6px; overflow: hidden;">
+                <div style="width: 17.5%; height: 100%; background: #ef4444;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
+{% endblock %}

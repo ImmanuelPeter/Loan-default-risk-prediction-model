@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Loan Default Risk Prediction System{% endblock %}</title>
+  
+  <!-- Bootstrap 5 (local build) -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='vendor/bootstrap/bootstrap.min.css') }}">
+  <!-- Core Framework Styling -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='beauty.css') }}">
+  <!-- Extended Visuals, Dashboard Architecture & Component Library -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='extended_beuaty.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='extended_beauty.css') }}">
+  <!-- Bootstrap compatibility and responsive dashboard overrides -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='bootstrap-compat.css') }}">
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/loan-default-risk-logo.png') }}">
+  
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+  {% block content %}{% endblock %}
+
+  <!-- Scripts -->
+  <script src="{{ url_for('static', filename='vendor/bootstrap/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='main.js') }}"></script>
+  {% block extra_scripts %}{% endblock %}
+</body>
+</html>

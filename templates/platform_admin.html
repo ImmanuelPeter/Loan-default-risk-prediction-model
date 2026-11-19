@@ -1,0 +1,309 @@
+{% extends "base.html" %}
+
+{% block title %}Platform owner | Company management{% endblock %}
+
+{% macro registration_admin_card(organization, registration_admins) %}
+  {% set administrator = registration_admins.get(organization.id) %}
+  <section class="platform-company-admin" aria-label="Registering administrator">
+    <div class="platform-company-admin-heading">
+      <span class="platform-company-admin-avatar" aria-hidden="true">{{ administrator.name[:1]|upper if administrator else '?' }}</span>
+      <div>
+        <span class="platform-company-admin-eyebrow">REGISTERING ADMINISTRATOR</span>
+        <strong>{{ administrator.name if administrator else 'Administrator details unavailable' }}</strong>
+      </div>
+      {% if administrator %}
+      <span class="platform-admin-status admin-status-{{ administrator.status|lower|replace(' ', '-') }}">
+        {{ administrator.status }}
+      </span>
+      {% endif %}
+    </div>
+    {% if administrator %}
+    <div class="platform-company-admin-details">
+      <div><span>Email</span><a href="mailto:{{ administrator.email }}">{{ administrator.email }}</a></div>
+      <div><span>Phone</span>
+        {% if administrator.phone_number %}
+        <a href="tel:{{ administrator.phone_number }}">{{ administrator.phone_number }}</a>
+        {% else %}
+        <strong>Not provided</strong>
+        {% endif %}
+      </div>
+      <div><span>Role</span><strong>{{ administrator.role }}</strong></div>
+      <div><span>Account created</span><strong>{{ administrator.created_at.strftime('%d %b %Y') if administrator.created_at else 'Not available' }}</strong></div>
+    </div>
+    {% else %}
+    <p class="platform-company-admin-empty">No administrator account is linked to this company.</p>
+    {% endif %}
+  </section>
+{% endmacro %}
+
+{% block content %}
+<div class="dashboard-viewport">
+  {% include 'header.html' %}
+  <div class="dashboard-body-container">
+    {% include 'sidebar.html' %}
+    <main class="dashboard-main-content platform-company-page">
+      <header class="workspace-header-row platform-page-hero">
+        <div>
+          <span class="platform-page-eyebrow">PLATFORM OWNER</span>
+          <h1 class="welcome-heading">Company management</h1>
+          <p class="welcome-subtext">Review registrations and manage company access across the platform.</p>
+        </div>
+      </header>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div role="status" style="padding: .85rem 1rem; margin-bottom: 1rem; border-radius: 10px; background: {% if category == 'danger' %}#fef2f2{% elif category == 'warning' %}#fffbeb{% else %}#ecfdf5{% endif %};">
+          {{ message }}
+        </div>
+        {% endfor %}
+      {% endwith %}
+
+      <section class="platform-company-metrics" aria-label="Company overview">
+        <article class="platform-metric-card">
+          <span class="platform-metric-icon" aria-hidden="true">▦</span>
+          <div><p>Total registered companies</p><strong>{{ organization_count }}</strong></div>
+        </article>
+        <article class="platform-metric-card platform-metric-active">
+          <span class="platform-metric-icon" aria-hidden="true">✓</span>
+          <div><p>Active companies</p><strong>{{ active_count }}</strong></div>
+        </article>
+        <article class="platform-metric-card platform-metric-pending">
+          <span class="platform-metric-icon" aria-hidden="true">◷</span>
+          <div><p>Awaiting review</p><strong>{{ pending_count }}</strong></div>
+        </article>
+        <article class="platform-metric-card platform-metric-rejected">
+          <span class="platform-metric-icon" aria-hidden="true">!</span>
+          <div><p>Rejected companies</p><strong>{{ rejected_count }}</strong></div>
+        </article>
+        <article class="platform-metric-card platform-metric-suspended">
+          <span class="platform-metric-icon" aria-hidden="true">Ⅱ</span>
+          <div><p>Suspended companies</p><strong>{{ suspended_count }}</strong></div>
+        </article>
+      </section>
+
+      <section class="platform-company-section">
+        <div class="platform-company-heading">
+          <div>
+            <h2>Registered companies</h2>
+            <p>Review company profiles and manage their platform access.</p>
+          </div>
+          <label class="platform-company-search">
+            <span class="visually-hidden">Search registered companies</span>
+            <input type="search" placeholder="Search companies..." data-company-search>
+          </label>
+        </div>
+        <div class="platform-company-list" data-company-list>
+          {% for organization in organizations %}
+            <article class="platform-company-card" data-company-card data-search-text="{{ organization.name }} {{ organization.org_code }} {{ organization.org_type }} {{ organization.email }} {{ organization.verification_status }}">
+              <div class="platform-company-card-top">
+                <div class="platform-company-identity">
+                  <span class="platform-company-avatar" aria-hidden="true">{{ organization.name[:1]|upper }}</span>
+                  <div>
+                  <strong>{{ organization.name }}</strong>
+                    <span class="platform-company-code">{{ organization.org_code }} · {{ organization.org_type }}</span>
+                  </div>
+                </div>
+                <span class="platform-status-badge status-{{ organization.verification_status|lower|replace(' ', '-') }}"
+                      aria-label="Account status: {{ organization.verification_status }}">
+                  <span class="platform-status-label">Account status</span>
+                  <strong>{{ organization.verification_status }}</strong>
+                </span>
+              </div>
+              <div class="platform-company-details">
+                <div><span>Company email</span><a href="mailto:{{ organization.email }}?subject={{ ('Regarding ' ~ organization.name)|urlencode }}">{{ organization.email }}</a></div>
+                <div><span>Phone</span><a href="tel:{{ organization.phone }}">{{ organization.phone }}</a></div>
+                <div><span>Registration date</span><strong><time datetime="{{ organization.created_at.isoformat() }}">{{ organization.created_at.strftime('%d %b %Y') }}</time></strong></div>
+                <div><span>Location</span><strong>{{ organization.location or 'Not provided' }}</strong></div>
+              </div>
+              {{ registration_admin_card(organization, registration_admins) }}
+              <div class="platform-company-actions">
+                <details class="platform-edit-company">
+                  <summary>Edit company</summary>
+                  <form method="POST" action="{{ url_for('main.update_organization', org_id=organization.id) }}">
+                    <label>Company name <input name="name" value="{{ organization.name }}" required maxlength="150"></label>
+                    <label>Company type <input name="org_type" value="{{ organization.org_type }}" required maxlength="80"></label>
+                    <label>Email <input name="email" type="email" value="{{ organization.email }}" required maxlength="150"></label>
+                    <label>Phone <input name="phone" value="{{ organization.phone }}" required maxlength="50"></label>
+                    <label>Location <input name="location" value="{{ organization.location or '' }}" required maxlength="100"></label>
+                    <label>Address <input name="address" value="{{ organization.address or '' }}" required maxlength="255"></label>
+                    <button class="btn btn-hero-primary" type="submit">Save changes</button>
+                  </form>
+                </details>
+                <div class="platform-company-status-actions">
+                  {% if organization.verification_status == 'Pending Approval' %}
+                  <form method="POST" action="{{ url_for('main.approve_organization', org_id=organization.id) }}">
+                    <button class="btn btn-hero-primary" type="submit">Approve</button>
+                  </form>
+                  <form method="POST" action="{{ url_for('main.reject_organization', org_id=organization.id) }}">
+                    <button class="btn btn-secondary" type="submit">Reject</button>
+                  </form>
+                  {% elif organization.verification_status == 'Verified' %}
+                  <form method="POST" action="{{ url_for('main.toggle_org_verification', org_id=organization.id) }}">
+                    <button class="btn btn-secondary" type="submit">Suspend</button>
+                  </form>
+                  <form method="POST" action="{{ url_for('main.set_organization_status', org_id=organization.id) }}">
+                    <input type="hidden" name="status" value="Deactivated">
+                    <button class="btn btn-secondary" type="submit">Deactivate</button>
+                  </form>
+                  {% else %}
+                  <form method="POST" action="{{ url_for('main.set_organization_status', org_id=organization.id) }}">
+                    <input type="hidden" name="status" value="Verified">
+                    <button class="btn btn-hero-primary" type="submit">Activate</button>
+                  </form>
+                  {% endif %}
+                  <form method="POST" action="{{ url_for('main.delete_organization', org_id=organization.id) }}"
+                        onsubmit="return confirm('Permanently delete this company and all its workspace records?');">
+                    <button class="btn btn-secondary" type="submit">Delete company</button>
+                  </form>
+                </div>
+              </div>
+            </article>
+          {% else %}
+            <div class="platform-empty-state">
+              <span aria-hidden="true">▦</span>
+              <strong>No companies in this section</strong>
+              <p>Companies appear here while active or awaiting review.</p>
+            </div>
+          {% endfor %}
+          <p class="platform-no-search-results" data-no-company-results hidden>No companies match your search.</p>
+        </div>
+      </section>
+
+      <section class="platform-company-section platform-suspended-section" aria-labelledby="suspended-companies-title">
+        <div class="platform-company-heading">
+          <div>
+            <h2 id="suspended-companies-title">Suspended companies</h2>
+            <p>Companies temporarily blocked from signing in. Reactivate access when appropriate.</p>
+          </div>
+          <span class="platform-suspended-count">{{ suspended_count }} {{ 'company' if suspended_count == 1 else 'companies' }}</span>
+        </div>
+        <div class="platform-company-list" data-company-list="suspended">
+          {% for organization in suspended_organizations %}
+          <article class="platform-company-card platform-suspended-card" data-company-card
+                   data-search-text="{{ organization.name }} {{ organization.org_code }} {{ organization.org_type }} {{ organization.email }} Suspended">
+            <div class="platform-company-card-top">
+              <div class="platform-company-identity">
+                <span class="platform-company-avatar platform-suspended-avatar" aria-hidden="true">{{ organization.name[:1]|upper }}</span>
+                <div>
+                  <strong>{{ organization.name }}</strong>
+                  <span class="platform-company-code">{{ organization.org_code }} · {{ organization.org_type }}</span>
+                </div>
+              </div>
+              <span class="platform-status-badge status-suspended" aria-label="Account status: Suspended">
+                <span class="platform-status-label">Account status</span>
+                <strong>Suspended</strong>
+              </span>
+            </div>
+            <div class="platform-company-details">
+              <div><span>Company email</span><a href="mailto:{{ organization.email }}?subject={{ ('Regarding ' ~ organization.name)|urlencode }}">{{ organization.email }}</a></div>
+              <div><span>Phone</span><a href="tel:{{ organization.phone }}">{{ organization.phone }}</a></div>
+              <div><span>Registration date</span><strong><time datetime="{{ organization.created_at.isoformat() }}">{{ organization.created_at.strftime('%d %b %Y') }}</time></strong></div>
+              <div><span>Location</span><strong>{{ organization.location or 'Not provided' }}</strong></div>
+            </div>
+            {{ registration_admin_card(organization, registration_admins) }}
+            <div class="platform-company-actions">
+              <details class="platform-edit-company">
+                <summary>Edit company</summary>
+                <form method="POST" action="{{ url_for('main.update_organization', org_id=organization.id) }}">
+                  <label>Company name <input name="name" value="{{ organization.name }}" required maxlength="150"></label>
+                  <label>Company type <input name="org_type" value="{{ organization.org_type }}" required maxlength="80"></label>
+                  <label>Email <input name="email" type="email" value="{{ organization.email }}" required maxlength="150"></label>
+                  <label>Phone <input name="phone" value="{{ organization.phone }}" required maxlength="50"></label>
+                  <label>Location <input name="location" value="{{ organization.location or '' }}" required maxlength="100"></label>
+                  <label>Address <input name="address" value="{{ organization.address or '' }}" required maxlength="255"></label>
+                  <button class="btn btn-hero-primary" type="submit">Save changes</button>
+                </form>
+              </details>
+              <div class="platform-company-status-actions">
+                <form method="POST" action="{{ url_for('main.set_organization_status', org_id=organization.id) }}">
+                  <input type="hidden" name="status" value="Verified">
+                  <button class="btn btn-hero-primary" type="submit">Reactivate company</button>
+                </form>
+                <form method="POST" action="{{ url_for('main.delete_organization', org_id=organization.id) }}"
+                      onsubmit="return confirm('Permanently delete this suspended company and all its workspace records?');">
+                  <button class="btn btn-secondary" type="submit">Delete company</button>
+                </form>
+              </div>
+            </div>
+          </article>
+          {% else %}
+          <div class="platform-empty-state platform-suspended-empty">
+            <span aria-hidden="true">✓</span>
+            <strong>No suspended companies</strong>
+            <p>Companies suspended by the Platform Owner will appear here.</p>
+          </div>
+          {% endfor %}
+        </div>
+      </section>
+
+    <section class="platform-company-section platform-rejected-section" aria-labelledby="rejected-companies-title">
+      <div class="platform-company-heading">
+        <div>
+          <h2 id="rejected-companies-title">Rejected companies</h2>
+          <p>Registrations declined by the Platform Owner. Review details before restoring access.</p>
+        </div>
+        <span class="platform-rejected-count">{{ rejected_count }} {{ 'company' if rejected_count == 1 else 'companies' }}</span>
+      </div>
+      <div class="platform-company-list" data-company-list="rejected">
+        {% for organization in rejected_organizations %}
+        <article class="platform-company-card platform-rejected-card" data-company-card
+                 data-search-text="{{ organization.name }} {{ organization.org_code }} {{ organization.org_type }} {{ organization.email }} Rejected">
+          <div class="platform-company-card-top">
+            <div class="platform-company-identity">
+              <span class="platform-company-avatar platform-rejected-avatar" aria-hidden="true">{{ organization.name[:1]|upper }}</span>
+              <div>
+                <strong>{{ organization.name }}</strong>
+                <span class="platform-company-code">{{ organization.org_code }} · {{ organization.org_type }}</span>
+              </div>
+            </div>
+            <span class="platform-status-badge status-rejected" aria-label="Account status: Rejected">
+              <span class="platform-status-label">Account status</span>
+              <strong>Rejected</strong>
+            </span>
+          </div>
+          <div class="platform-company-details">
+            <div><span>Company email</span><a href="mailto:{{ organization.email }}?subject={{ ('Regarding ' ~ organization.name)|urlencode }}">{{ organization.email }}</a></div>
+            <div><span>Phone</span><a href="tel:{{ organization.phone }}">{{ organization.phone }}</a></div>
+            <div><span>Registration date</span><strong><time datetime="{{ organization.created_at.isoformat() }}">{{ organization.created_at.strftime('%d %b %Y') }}</time></strong></div>
+            <div><span>Location</span><strong>{{ organization.location or 'Not provided' }}</strong></div>
+          </div>
+          {{ registration_admin_card(organization, registration_admins) }}
+          <div class="platform-company-actions">
+            <details class="platform-edit-company">
+              <summary>Edit company</summary>
+              <form method="POST" action="{{ url_for('main.update_organization', org_id=organization.id) }}">
+                <label>Company name <input name="name" value="{{ organization.name }}" required maxlength="150"></label>
+                <label>Company type <input name="org_type" value="{{ organization.org_type }}" required maxlength="80"></label>
+                <label>Email <input name="email" type="email" value="{{ organization.email }}" required maxlength="150"></label>
+                <label>Phone <input name="phone" value="{{ organization.phone }}" required maxlength="50"></label>
+                <label>Location <input name="location" value="{{ organization.location or '' }}" required maxlength="100"></label>
+                <label>Address <input name="address" value="{{ organization.address or '' }}" required maxlength="255"></label>
+                <button class="btn btn-hero-primary" type="submit">Save changes</button>
+              </form>
+            </details>
+            <div class="platform-company-status-actions">
+              <form method="POST" action="{{ url_for('main.set_organization_status', org_id=organization.id) }}">
+                <input type="hidden" name="status" value="Verified">
+                <button class="btn btn-hero-primary" type="submit">Approve and activate</button>
+              </form>
+              <form method="POST" action="{{ url_for('main.delete_organization', org_id=organization.id) }}"
+                    onsubmit="return confirm('Permanently delete this rejected company and all its workspace records?');">
+                <button class="btn btn-secondary" type="submit">Delete company</button>
+              </form>
+            </div>
+          </div>
+        </article>
+        {% else %}
+        <div class="platform-empty-state platform-rejected-empty">
+          <span aria-hidden="true">✓</span>
+          <strong>No rejected companies</strong>
+          <p>Companies declined during registration will be listed here for review.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    </main>
+  </div>
+</div>
+{% endblock %}

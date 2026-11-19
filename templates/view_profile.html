@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}View Profile | Loan Default Risk Prediction System{% endblock %}
+
+{% block content %}
+<div class="dashboard-viewport">
+  {% include 'header.html' %}
+
+  <div class="dashboard-body-container">
+    {% include 'sidebar.html' %}
+
+    <main class="dashboard-main-content">
+      <header class="workspace-header-row">
+        <div>
+          <h1 class="welcome-heading">My Profile</h1>
+          <p class="welcome-subtext">View your account and organization details.</p>
+        </div>
+      </header>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+        <div class="alert {% if category == 'danger' %}alert-danger{% elif category == 'warning' %}alert-warning{% else %}alert-success{% endif %}" role="status">
+          {{ message }}
+        </div>
+        {% endfor %}
+      {% endwith %}
+
+        <section class="chart-card-box" style="margin-bottom: 1.5rem;">
+          <div class="chart-box-header" style="margin-bottom: 1rem;">Personal Details</div>
+          <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.25rem;">
+            <div style="width: 96px; height: 96px; border-radius: 50%; background: #e2e8f0; color: #334155; display: grid; place-items: center; font-size: 2rem; font-weight: 800;">{{ current_user.name[:1]|upper }}</div>
+            <div>
+              <strong style="display: block; font-size: 1.05rem;">{{ current_user.name }}</strong>
+              <span style="color: #64748b;">{{ current_user.role }}</span>
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem;">
+            <div>
+              <span style="display: block; font-weight: 700; color: #475569; margin-bottom: 0.35rem;">Full Name</span>
+              <div>{{ current_user.name }}</div>
+            </div>
+            <div>
+              <span style="display: block; font-weight: 700; color: #475569; margin-bottom: 0.35rem;">Email Address</span>
+              <div>{{ current_user.email }}</div>
+            </div>
+            <div>
+              <span style="display: block; font-weight: 700; color: #475569; margin-bottom: 0.35rem;">Phone Number</span>
+              <div>{{ current_user.phone_number or 'Not provided' }}</div>
+            </div>
+            <div>
+              <span style="display: block; font-weight: 700; color: #475569; margin-bottom: 0.35rem;">Access Role</span>
+              <div>{{ current_user.role }}</div>
+            </div>
+            <div>
+              <span style="display: block; font-weight: 700; color: #475569; margin-bottom: 0.35rem;">Account Status</span>
+              <div>{{ current_user.status }}</div>
+            </div>
+            <div>
+              <span style="display: block; font-weight: 700; color: #475569; margin-bottom: 0.35rem;">Organization</span>
+              <div>{{ current_user.organization.name if current_user.organization else 'Platform Operations' }}</div>
+            </div>
+          </div>
+        </section>
+    </main>
+  </div>
+</div>
+{% endblock %}
